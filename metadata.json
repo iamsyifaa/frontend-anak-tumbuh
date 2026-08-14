@@ -1,0 +1,6 @@
+{
+  "name": "ANAKTUMBUH.ID - Dashboard Siswa",
+  "description": "Dashboard Siswa interaktif untuk aplikasi ANAKTUMBUH.ID",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
