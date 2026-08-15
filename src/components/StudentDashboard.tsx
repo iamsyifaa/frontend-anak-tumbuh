@@ -19,6 +19,9 @@ import { useAuth } from "../context/AuthContext";
 import { GamificationSummary as GamificationSummaryType } from "../types/pointConfiguration";
 import { gamificationService } from "../services/gamificationService";
 import { GamificationOverview } from "../types/gamification";
+import { StudentDashboardAggregate as StudentDashboardAggregateView } from "./dashboard/StudentDashboardAggregate";
+import { studentDashboardService } from "../services/studentDashboardService";
+import { StudentDashboardAggregate as StudentDashboardAggregateType } from "../types/studentDashboard";
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -26,11 +29,23 @@ export const StudentDashboard: React.FC = () => {
   const [gamificationLoading, setGamificationLoading] = useState(true);
   const [gamificationOverview, setGamificationOverview] = useState<GamificationOverview | null>(null);
   const [gamificationError, setGamificationError] = useState<string | null>(null);
+  const [dashboardAggregate, setDashboardAggregate] = useState<StudentDashboardAggregateType | null>(null);
+  const [dashboardAggregateLoading, setDashboardAggregateLoading] = useState(true);
+  const [dashboardAggregateError, setDashboardAggregateError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user || user.role !== "siswa") { setGamificationLoading(false); return; }
+    if (!user || user.role !== "siswa") { setGamificationLoading(false); setDashboardAggregateLoading(false); return; }
     setGamificationLoading(true);
     setGamificationError(null);
+    setDashboardAggregateLoading(true);
+    setDashboardAggregateError(null);
+    void studentDashboardService.getAggregate(user)
+      .then((aggregate) => setDashboardAggregate(aggregate))
+      .catch(() => {
+        setDashboardAggregate(null);
+        setDashboardAggregateError("Data dashboard siswa belum dapat dimuat. Coba lagi.");
+      })
+      .finally(() => setDashboardAggregateLoading(false));
     void Promise.all([
       pointConfigurationService.getStudentSummary(user),
       gamificationService.getOverview(user.id),
@@ -154,8 +169,18 @@ export const StudentDashboard: React.FC = () => {
     setRemainingChances(7);
   };
 
+  const reloadDashboardAggregate = () => {
+    if (!user || user.role !== "siswa") return;
+    setDashboardAggregateLoading(true);
+    setDashboardAggregateError(null);
+    void studentDashboardService.getAggregate(user)
+      .then((aggregate) => setDashboardAggregate(aggregate))
+      .catch(() => setDashboardAggregateError("Data dashboard siswa belum dapat dimuat. Coba lagi."))
+      .finally(() => setDashboardAggregateLoading(false));
+  };
+
   return (
-    <div className="min-h-screen bg-[#f4f7fc] text-slate-900 flex font-sans antialiased selection:bg-sky-200">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#f4f7fc] text-slate-900 flex font-sans antialiased selection:bg-sky-200">
       {/* Sidebar Navigation */}
       <Sidebar
         activeTab={activeTab}
@@ -169,7 +194,7 @@ export const StudentDashboard: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 md:pl-72 flex flex-col min-w-0 transition-all duration-300">
+      <div className="flex-1 md:pl-72 flex flex-col min-w-0 min-h-screen transition-all duration-300">
         <Header
           activeTab={activeTab}
           currentStreak={currentStreak}
@@ -179,21 +204,27 @@ export const StudentDashboard: React.FC = () => {
           setIsMobileOpen={setIsMobileOpen}
         />
 
-        <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-3 py-3 pt-1 sm:px-4 sm:py-5 md:px-8 md:py-8">
           {activeTab === "beranda" && (
-            <div className="space-y-5">
-              {!gamificationLoading && gamification && <GamificationSummary summary={gamification} />}
-              {gamificationLoading && <div className="grid grid-cols-2 gap-3 lg:grid-cols-4"><div className="h-28 animate-pulse rounded-2xl bg-white" /><div className="h-28 animate-pulse rounded-2xl bg-white" /><div className="h-28 animate-pulse rounded-2xl bg-white" /><div className="h-28 animate-pulse rounded-2xl bg-white" /></div>}
+            <div className="space-y-7">
+              <StudentDashboardAggregateView
+                data={dashboardAggregate}
+                loading={dashboardAggregateLoading}
+                error={dashboardAggregateError}
+                onRetry={reloadDashboardAggregate}
+                onOpenRanking={() => setActiveTab("ranking")}
+                onOpenAchievements={() => setActiveTab("pencapaian")}
+              />
               <BerandaView
-              currentPoints={currentPoints}
-              currentStreak={currentStreak}
-              remainingChances={remainingChances}
-              habits={habits}
-              histories={histories}
-              onTabChange={setActiveTab}
-              onUpdateStreakChances={handleUpdateStreakChances}
-              onResetStreakChances={handleResetStreakChances}
-            />
+                currentPoints={currentPoints}
+                currentStreak={currentStreak}
+                remainingChances={remainingChances}
+                habits={habits}
+                histories={histories}
+                onTabChange={setActiveTab}
+                onUpdateStreakChances={handleUpdateStreakChances}
+                onResetStreakChances={handleResetStreakChances}
+              />
             </div>
           )}
 

@@ -10,6 +10,7 @@ import { StudentAccountManagementPage } from "./pages/StudentAccountManagementPa
 import { StudentDashboard } from "./components/StudentDashboard";
 import { HabitConfigurationPage } from "./pages/HabitConfigurationPage";
 import { PointConfigurationPage } from "./pages/PointConfigurationPage";
+import { QrAuthHandlerPage } from "./pages/QrAuthHandlerPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export default function App() {
@@ -18,6 +19,8 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          {/* Public QR handoff: the backend validates the credential in production. */}
+          <Route path="/auth/qr" element={<QrAuthHandlerPage />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
           <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:school_master" />}>

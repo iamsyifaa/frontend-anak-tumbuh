@@ -21,6 +21,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   remainingChances,
   isMobileOpen,
   setIsMobileOpen,
+  rankingEnabled = false,
 }) => {
   const menuItems = [
     { id: "beranda" as TabType, label: "Beranda", icon: Home },
@@ -30,8 +31,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside
-      className={`fixed inset-y-0 left-0 z-40 w-72 bg-[#0b1b3a] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out md:translate-x-0 ${
+    <>
+      {isMobileOpen && (
+        <button
+          type="button"
+          aria-label="Tutup menu"
+          onClick={() => setIsMobileOpen?.(false)}
+          className="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-[2px] md:hidden"
+        />
+      )}
+      <aside
+      className={`fixed inset-y-0 left-0 z-50 w-[min(18rem,88vw)] bg-[#0b1b3a] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out md:translate-x-0 ${
         isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       }`}
     >
@@ -98,7 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer Tip Card */}
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         <div className="bg-gradient-to-br from-sky-500 to-blue-600 rounded-3xl p-4 flex items-center gap-2 relative overflow-hidden shadow-lg group">
           <img
             src="/image/karakter_utama.png"
@@ -120,6 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           © 2026 anaktumbuh.id — Semua hak dilindungi
         </p>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 };

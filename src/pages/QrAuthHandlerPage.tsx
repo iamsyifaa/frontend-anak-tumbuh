@@ -5,13 +5,14 @@ import { useAuth } from "../context/AuthContext";
 export const QrAuthHandlerPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const { loginWithQr, error } = useAuth();
+  const { loginWithQr, error, clearError } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleQrLogin = async () => {
       if (token) {
         try {
+          clearError();
           await loginWithQr(token);
           navigate("/dashboard/siswa", { replace: true });
         } catch (err) {

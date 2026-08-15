@@ -50,8 +50,8 @@ export const LoginPage: React.FC = () => {
   );
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-emerald-500/10 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+    <div className="flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-emerald-500/10 p-3 sm:p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-8 shadow-2xl">
         {/* Header Branding */}
         <div className="text-center">
           <h1 className="text-2xl font-black text-emerald-800">

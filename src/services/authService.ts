@@ -69,12 +69,25 @@ export const authService = {
   },
 
   // Login via QR Token Unik Siswa (Satu Scan)
-  async loginWithQrToken(qrToken: string): Promise<AuthResponse> {
+  async loginWithQrToken(rawQrValue: string): Promise<AuthResponse> {
     await new Promise((resolve) => setTimeout(resolve, 600));
 
-    const VALID_MOCK_QR = "mock-valid-qr-token-siswa";
+    // Mock contract accepts either the raw credential or the URL printed in the QR.
+    // Production must send the credential to the backend for validation/revocation checks.
+    let qrToken = rawQrValue.trim();
+    try {
+      const parsed = new URL(qrToken);
+      const tokenFromUrl = parsed.searchParams.get("token");
+      if (tokenFromUrl) qrToken = tokenFromUrl;
+    } catch {
+      // The scanned value can be a raw credential rather than a URL.
+    }
 
-    if (qrToken !== VALID_MOCK_QR) {
+    const isMockCredential =
+      qrToken === "mock-valid-qr-token-siswa" ||
+      /^mock-student-qr-stu-(001|003)-[a-f0-9]+$/.test(qrToken);
+
+    if (!isMockCredential) {
       throw new Error("Kode QR tidak valid atau sudah tidak aktif.");
     }
 
