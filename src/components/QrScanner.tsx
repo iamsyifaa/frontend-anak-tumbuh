@@ -99,7 +99,7 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, onClose }) => {
       const cleanup = async () => {
         try {
           await scanner.stop().catch(() => {});
-          await scanner.clear().catch(() => {});
+          scanner.clear();
         } catch (err) {
           console.error("Scanner cleanup error:", err);
         }

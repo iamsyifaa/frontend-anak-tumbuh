@@ -15,7 +15,12 @@ const MOCK_USERS: Record<string, UserProfile> = {
     username: "kepsek",
     role: "kepala_sekolah",
     schoolId: "sch-101",
-    permissions: ["read:school_analytics", "read:class_reports"],
+    permissions: [
+      "read:school_analytics",
+      "read:class_reports",
+      "read:school_master",
+      "write:school_master",
+    ],
   },
   walikelas: {
     id: "u-3",
