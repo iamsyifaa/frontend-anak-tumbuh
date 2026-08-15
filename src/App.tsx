@@ -8,6 +8,8 @@ import { SchoolMasterPage } from "./pages/SchoolMasterPage";
 import { StudentManagementPage } from "./pages/StudentManagementPage";
 import { StudentAccountManagementPage } from "./pages/StudentAccountManagementPage";
 import { StudentDashboard } from "./components/StudentDashboard";
+import { HabitConfigurationPage } from "./pages/HabitConfigurationPage";
+import { PointConfigurationPage } from "./pages/PointConfigurationPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export default function App() {
@@ -26,6 +28,16 @@ export default function App() {
           <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:students" />}>
             <Route path="/dashboard/admin/students" element={<StudentManagementPage />} />
             <Route path="/dashboard/kepsek/students" element={<StudentManagementPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:habit_config" />}>
+            <Route path="/dashboard/admin/habits" element={<HabitConfigurationPage />} />
+            <Route path="/dashboard/kepsek/habits" element={<HabitConfigurationPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:point_config" />}>
+            <Route path="/dashboard/admin/points" element={<PointConfigurationPage />} />
+            <Route path="/dashboard/kepsek/points" element={<PointConfigurationPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="generate:student_qr" />}>

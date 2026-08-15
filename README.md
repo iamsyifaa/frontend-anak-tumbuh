@@ -34,3 +34,8 @@ Added in the v2.0 student-management slice:
 - Manual students remain master data only; no manual recap input, mass recap, copy-previous, or manual-book answer import is included.
 
 The final API endpoint names remain intentionally uncommitted because the v2.0 documents lock the domain/boundary and authorization rules, not final endpoint names.
+
+
+## Habit Configuration UI
+
+The frontend includes a mock-friendly, data-driven Habit → Indicator → Option configuration UI with conditional indicator rules, ordering, Poin/EXP values, school scope, and version publish state. The UI does not treat the seven habits as hard-coded component structure; habit records are returned by `src/services/habitConfigurationService.ts` and can be replaced by the Habit API.

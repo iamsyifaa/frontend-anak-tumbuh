@@ -11,6 +11,7 @@ import {
   Plus,
   RefreshCw,
   School as SchoolIcon,
+  Settings2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { MasterDialog } from "../components/master/MasterDialog";
@@ -160,6 +161,24 @@ export const SchoolMasterPage: React.FC = () => {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {hasPermission("read:habit_config") && (
+            <button
+              type="button"
+              onClick={() => navigate(user?.role === "super_admin" ? "/dashboard/admin/habits" : "/dashboard/kepsek/habits")}
+              className="inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2.5 text-xs font-extrabold text-violet-700 shadow-sm hover:bg-violet-100"
+            >
+              <Settings2 className="h-4 w-4" /> Konfigurasi 7 Kebiasaan
+            </button>
+          )}
+          {hasPermission("read:point_config") && (
+            <button
+              type="button"
+              onClick={() => navigate(user?.role === "super_admin" ? "/dashboard/admin/points" : "/dashboard/kepsek/points")}
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs font-extrabold text-emerald-700 shadow-sm hover:bg-emerald-100"
+            >
+              <Settings2 className="h-4 w-4" /> Konfigurasi Poin & EXP
+            </button>
+          )}
           {hasPermission("read:students") && (
             <button
               type="button"

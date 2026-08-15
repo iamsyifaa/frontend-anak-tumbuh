@@ -24,6 +24,11 @@ const MOCK_USERS: Record<string, UserProfile> = {
       "write:students",
       "import:students",
       "generate:student_qr",
+      "read:habit_config",
+      "manage:habit_config",
+      "read:point_config",
+      "manage:point_config",
+      "read:student_gamification",
     ],
   },
   walikelas: {
@@ -43,6 +48,7 @@ const MOCK_USERS: Record<string, UserProfile> = {
     schoolId: "sch-101",
     classId: "cls-5a",
     permissions: ["read:own_habits", "write:own_habits"],
+    method: "DIGITAL",
   },
 };
 

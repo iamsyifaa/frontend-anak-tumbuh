@@ -18,6 +18,7 @@ export interface UserProfile {
   classId?: string;
   avatarUrl?: string;
   permissions: string[]; // Permission list dikirim langsung dari backend
+  method?: "DIGITAL" | "MANUAL"; // Metode pengisian siswa dari backend
 }
 
 export interface AuthResponse {

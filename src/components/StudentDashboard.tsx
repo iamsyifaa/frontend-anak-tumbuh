@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TabType, Habit, ActivityHistory, ToastMessage } from "../types";
 import {
   INITIAL_HABITS,
@@ -17,13 +17,26 @@ import { BerandaView } from "./views/BerandaView";
 import { IsiKebiasaanView } from "./views/IsiKebiasaanView";
 import { PencapaianView } from "./views/PencapaianView";
 import { RankingView } from "./views/RankingView";
+import { GamificationSummary } from "./gamification/GamificationSummary";
+import { pointConfigurationService } from "../services/pointConfigurationService";
+import { useAuth } from "../context/AuthContext";
+import { GamificationSummary as GamificationSummaryType } from "../types/pointConfiguration";
 
 export const StudentDashboard: React.FC = () => {
+  const { user } = useAuth();
+  const [gamification, setGamification] = useState<GamificationSummaryType | null>(null);
+  const [gamificationLoading, setGamificationLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user || user.role !== "siswa") { setGamificationLoading(false); return; }
+    void pointConfigurationService.getStudentSummary(user).then((summary) => { setGamification(summary); setCurrentPoints(summary.points); }).catch(() => setGamification(null)).finally(() => setGamificationLoading(false));
+  }, [user]);
+
   // Main Navigation View State
   const [activeTab, setActiveTab] = useState<TabType>("beranda");
 
   // Student State Logic as requested by prompt
-  const [currentPoints, setCurrentPoints] = useState<number>(1450);
+  const [currentPoints, setCurrentPoints] = useState<number>(0);
   const [currentStreak, setCurrentStreak] = useState<number>(12);
   const [remainingChances, setRemainingChances] = useState<number>(7);
 
@@ -43,7 +56,7 @@ export const StudentDashboard: React.FC = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Handle Habit Completion (Modal Submit)
-  const handleCompleteHabit = (
+  const handleCompleteHabit = async (
     habitId: string,
     initiative: "Sadar Sendiri" | "Disuruh",
     reflection: string,
@@ -66,18 +79,16 @@ export const StudentDashboard: React.FC = () => {
     });
     setHabits(updatedHabits);
 
-    // 2. Award Points
-    const earnedPoints = targetHabit.points;
-    const newTotalPoints = currentPoints + earnedPoints;
+    // 2. Submit to backend boundary. Frontend does not calculate Poin/EXP/Level.
+    const backendResult = await pointConfigurationService.submitHabitAndGetSummary(user!, user!.id, habitId, initiative);
+    const earnedPoints = backendResult.pointsAwarded;
+    const newTotalPoints = backendResult.summary.points;
+    setGamification(backendResult.summary);
     setCurrentPoints(newTotalPoints);
 
-    // Update User Points in Leaderboard
-    setRankingKelas((prev) =>
-      prev.map((u) => (u.isCurrentUser ? { ...u, points: newTotalPoints } : u)),
-    );
-    setRankingAngkatan((prev) =>
-      prev.map((u) => (u.isCurrentUser ? { ...u, points: newTotalPoints } : u)),
-    );
+    // Update User Points in Leaderboard from backend response
+    setRankingKelas((prev) => prev.map((u) => (u.isCurrentUser ? { ...u, points: newTotalPoints } : u)));
+    setRankingAngkatan((prev) => prev.map((u) => (u.isCurrentUser ? { ...u, points: newTotalPoints } : u)));
 
     // 3. Add to History Timeline
     const newHistoryItem: ActivityHistory = {
@@ -152,7 +163,10 @@ export const StudentDashboard: React.FC = () => {
 
         <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
           {activeTab === "beranda" && (
-            <BerandaView
+            <div className="space-y-5">
+              {!gamificationLoading && gamification && <GamificationSummary summary={gamification} />}
+              {gamificationLoading && <div className="grid grid-cols-2 gap-3 lg:grid-cols-4"><div className="h-28 animate-pulse rounded-2xl bg-white" /><div className="h-28 animate-pulse rounded-2xl bg-white" /><div className="h-28 animate-pulse rounded-2xl bg-white" /><div className="h-28 animate-pulse rounded-2xl bg-white" /></div>}
+              <BerandaView
               currentPoints={currentPoints}
               currentStreak={currentStreak}
               remainingChances={remainingChances}
@@ -162,19 +176,11 @@ export const StudentDashboard: React.FC = () => {
               onUpdateStreakChances={handleUpdateStreakChances}
               onResetStreakChances={handleResetStreakChances}
             />
+            </div>
           )}
 
           {activeTab === "kebiasaan" && (
-            <IsiKebiasaanView
-              habits={habits}
-              onCompleteHabit={
-                handleCompleteHabit as (
-                  habitId: string,
-                  initiative: string,
-                  reflection: string,
-                ) => void
-              }
-            />
+            <IsiKebiasaanView />
           )}
 
           {activeTab === "pencapaian" && (
