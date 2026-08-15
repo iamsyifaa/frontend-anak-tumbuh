@@ -10,6 +10,7 @@ interface SidebarProps {
   remainingChances: number;
   isMobileOpen?: boolean;
   setIsMobileOpen?: (open: boolean) => void;
+  rankingEnabled?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -25,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: "beranda" as TabType, label: "Beranda", icon: Home },
     { id: "kebiasaan" as TabType, label: "Laporan Harian", icon: CheckSquare },
     { id: "pencapaian" as TabType, label: "Pencapaian", icon: Trophy },
-    { id: "ranking" as TabType, label: "Papan Juara", icon: Medal },
+    ...(rankingEnabled ? [{ id: "ranking" as TabType, label: "Papan Juara", icon: Medal }] : []),
   ];
 
   return (

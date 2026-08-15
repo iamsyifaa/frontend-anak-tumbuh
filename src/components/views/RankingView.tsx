@@ -19,16 +19,31 @@ import {
 interface RankingViewProps {
   rankingKelas: RankingUserItem[];
   rankingAngkatan: RankingUserItem[];
+  classRankingEnabled?: boolean;
+  cohortRankingEnabled?: boolean;
 }
 
 export const RankingView: React.FC<RankingViewProps> = ({
   rankingKelas,
-  rankingAngkatan
+  rankingAngkatan,
+  classRankingEnabled = true,
+  cohortRankingEnabled = true,
 }) => {
-  const [rankingType, setRankingType] = useState<'kelas' | 'angkatan'>('kelas');
+  const initialType = classRankingEnabled ? "kelas" : "angkatan";
+  const [rankingType, setRankingType] = useState<'kelas' | 'angkatan'>(initialType as 'kelas' | 'angkatan');
   const [searchQuery, setSearchQuery] = useState('');
 
   const currentList = rankingType === 'kelas' ? rankingKelas : rankingAngkatan;
+
+  if (!classRankingEnabled && !cohortRankingEnabled) {
+    return (
+      <div className="bg-white rounded-[2rem] border-2 border-dashed border-slate-200 p-12 text-center">
+        <Medal className="w-12 h-12 mx-auto text-slate-300" />
+        <h3 className="font-extrabold text-slate-700 mt-3">Ranking tidak tersedia</h3>
+        <p className="text-xs text-slate-500 mt-1">Sekolah belum mengaktifkan ranking untuk konteks ini.</p>
+      </div>
+    );
+  }
 
   const filteredList = currentList.filter(
     (user) =>
@@ -49,13 +64,13 @@ export const RankingView: React.FC<RankingViewProps> = ({
             Juara Kebiasaan Terbaik! 🌟
           </h2>
           <p className="text-xs md:text-sm text-sky-100 font-semibold leading-relaxed">
-            Kumpulkan poin setiap hari dan pertahankan streak untuk menjadi yang teratas di kelas dan angkatan!
+            Ranking ditentukan dari Poin dan hanya tersedia jika sekolah mengaktifkan fitur ranking.
           </p>
         </div>
 
         {/* Tab Toggle Controls */}
         <div className="bg-white/20 backdrop-blur-md p-2 rounded-3xl flex items-center space-x-2 border-2 border-white/40 self-start md:self-center relative z-10">
-          <button
+          {classRankingEnabled && <button
             onClick={() => setRankingType('kelas')}
             className={`px-5 py-3 rounded-2xl text-xs font-black transition-all duration-200 flex items-center gap-2 font-heading ${
               rankingType === 'kelas'
@@ -64,9 +79,9 @@ export const RankingView: React.FC<RankingViewProps> = ({
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Ranking Kelas (VIII-B)</span>
-          </button>
-          <button
+            <span>Ranking Kelas</span>
+          </button>}
+          {cohortRankingEnabled && <button
             onClick={() => setRankingType('angkatan')}
             className={`px-5 py-3 rounded-2xl text-xs font-black transition-all duration-200 flex items-center gap-2 font-heading ${
               rankingType === 'angkatan'
@@ -76,7 +91,7 @@ export const RankingView: React.FC<RankingViewProps> = ({
           >
             <Trophy className="w-4 h-4" />
             <span>Ranking Angkatan</span>
-          </button>
+          </button>}
         </div>
       </div>
 

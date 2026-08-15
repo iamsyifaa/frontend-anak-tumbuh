@@ -3,10 +3,6 @@ import { TabType, Habit, ActivityHistory, ToastMessage } from "../types";
 import {
   INITIAL_HABITS,
   INITIAL_HISTORIES,
-  INITIAL_BADGES,
-  INITIAL_CERTIFICATES,
-  RANKING_KELAS,
-  RANKING_ANGKATAN,
 } from "../data/mockData";
 
 import { Sidebar } from "./Sidebar";
@@ -21,19 +17,47 @@ import { GamificationSummary } from "./gamification/GamificationSummary";
 import { pointConfigurationService } from "../services/pointConfigurationService";
 import { useAuth } from "../context/AuthContext";
 import { GamificationSummary as GamificationSummaryType } from "../types/pointConfiguration";
+import { gamificationService } from "../services/gamificationService";
+import { GamificationOverview } from "../types/gamification";
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   const [gamification, setGamification] = useState<GamificationSummaryType | null>(null);
   const [gamificationLoading, setGamificationLoading] = useState(true);
+  const [gamificationOverview, setGamificationOverview] = useState<GamificationOverview | null>(null);
+  const [gamificationError, setGamificationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user || user.role !== "siswa") { setGamificationLoading(false); return; }
-    void pointConfigurationService.getStudentSummary(user).then((summary) => { setGamification(summary); setCurrentPoints(summary.points); }).catch(() => setGamification(null)).finally(() => setGamificationLoading(false));
+    setGamificationLoading(true);
+    setGamificationError(null);
+    void Promise.all([
+      pointConfigurationService.getStudentSummary(user),
+      gamificationService.getOverview(user.id),
+    ])
+      .then(([summary, overview]) => {
+        setGamification(summary);
+        setCurrentPoints(summary.points);
+        setGamificationOverview(overview);
+        setCurrentStreak(overview.streak.current);
+        setRemainingChances(overview.streak.remainingChances);
+      })
+      .catch(() => {
+        setGamification(null);
+        setGamificationOverview(null);
+        setGamificationError("Data gamifikasi belum dapat dimuat. Coba lagi.");
+      })
+      .finally(() => setGamificationLoading(false));
   }, [user]);
 
   // Main Navigation View State
   const [activeTab, setActiveTab] = useState<TabType>("beranda");
+
+  useEffect(() => {
+    if (activeTab === "ranking" && !gamificationOverview?.features.rankingEnabled) {
+      setActiveTab("beranda");
+    }
+  }, [activeTab, gamificationOverview]);
 
   // Student State Logic as requested by prompt
   const [currentPoints, setCurrentPoints] = useState<number>(0);
@@ -44,10 +68,6 @@ export const StudentDashboard: React.FC = () => {
   const [habits, setHabits] = useState<Habit[]>(INITIAL_HABITS);
   const [histories, setHistories] =
     useState<ActivityHistory[]>(INITIAL_HISTORIES);
-  const [badges] = useState(INITIAL_BADGES);
-  const [certificates] = useState(INITIAL_CERTIFICATES);
-  const [rankingKelas, setRankingKelas] = useState(RANKING_KELAS);
-  const [rankingAngkatan, setRankingAngkatan] = useState(RANKING_ANGKATAN);
 
   // Toast Notification State
   const [toast, setToast] = useState<ToastMessage | null>(null);
@@ -86,9 +106,6 @@ export const StudentDashboard: React.FC = () => {
     setGamification(backendResult.summary);
     setCurrentPoints(newTotalPoints);
 
-    // Update User Points in Leaderboard from backend response
-    setRankingKelas((prev) => prev.map((u) => (u.isCurrentUser ? { ...u, points: newTotalPoints } : u)));
-    setRankingAngkatan((prev) => prev.map((u) => (u.isCurrentUser ? { ...u, points: newTotalPoints } : u)));
 
     // 3. Add to History Timeline
     const newHistoryItem: ActivityHistory = {
@@ -148,6 +165,7 @@ export const StudentDashboard: React.FC = () => {
         remainingChances={remainingChances}
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
+        rankingEnabled={Boolean(gamificationOverview?.features.rankingEnabled)}
       />
 
       {/* Main Content Area */}
@@ -184,14 +202,35 @@ export const StudentDashboard: React.FC = () => {
           )}
 
           {activeTab === "pencapaian" && (
-            <PencapaianView badges={badges} certificates={certificates} />
+            gamificationLoading ? (
+              <GamificationLoading />
+            ) : gamificationError ? (
+              <GamificationError message={gamificationError} />
+            ) : gamificationOverview ? (
+              <PencapaianView
+                badges={gamificationOverview.badges}
+                awards={gamificationOverview.awards}
+                certificates={gamificationOverview.certificates}
+                streak={gamificationOverview.streak}
+              />
+            ) : (
+              <GamificationError message="Data pencapaian belum tersedia." />
+            )
           )}
 
-          {activeTab === "ranking" && (
-            <RankingView
-              rankingKelas={rankingKelas}
-              rankingAngkatan={rankingAngkatan}
-            />
+          {activeTab === "ranking" && gamificationOverview?.features.rankingEnabled && (
+            gamificationLoading ? (
+              <GamificationLoading />
+            ) : gamificationError ? (
+              <GamificationError message={gamificationError} />
+            ) : (
+              <RankingView
+                rankingKelas={gamificationOverview.ranking.class}
+                rankingAngkatan={gamificationOverview.ranking.cohort}
+                classRankingEnabled={gamificationOverview.features.classRankingEnabled}
+                cohortRankingEnabled={gamificationOverview.features.cohortRankingEnabled}
+              />
+            )
           )}
         </main>
       </div>
@@ -201,5 +240,23 @@ export const StudentDashboard: React.FC = () => {
     </div>
   );
 };
+
+const GamificationLoading: React.FC = () => (
+  <div className="space-y-5">
+    <div className="h-36 animate-pulse rounded-[2rem] bg-white" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="h-48 animate-pulse rounded-[2rem] bg-white" />
+      <div className="h-48 animate-pulse rounded-[2rem] bg-white" />
+    </div>
+  </div>
+);
+
+const GamificationError: React.FC<{ message: string }> = ({ message }) => (
+  <div className="bg-white rounded-[2rem] border-2 border-dashed border-rose-200 p-10 text-center">
+    <div className="mx-auto w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-black">!</div>
+    <h3 className="font-extrabold text-slate-800 mt-3">Gagal memuat gamifikasi</h3>
+    <p className="text-xs text-slate-500 mt-1">{message}</p>
+  </div>
+);
 
 export default StudentDashboard;
