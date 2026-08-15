@@ -57,12 +57,14 @@ export const authService = {
   async loginWithQrToken(qrToken: string): Promise<AuthResponse> {
     await new Promise((resolve) => setTimeout(resolve, 600));
 
-    if (!qrToken || qrToken === "invalid-token") {
-      throw new Error("Kode QR tidak valid atau sudah kedaluwarsa.");
+    const VALID_MOCK_QR = "mock-valid-qr-token-siswa";
+
+    if (qrToken !== VALID_MOCK_QR) {
+      throw new Error("Kode QR tidak valid atau sudah tidak aktif.");
     }
 
-    // Simulasi QR token validasi ke data siswa
     const studentUser = MOCK_USERS["siswa"];
+
     return {
       token: `mock-qr-token-${studentUser.id}-${Date.now()}`,
       user: studentUser,

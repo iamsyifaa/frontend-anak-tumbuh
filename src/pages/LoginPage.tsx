@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { QrScanner } from "../components/QrScanner";
 
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const { login, loginWithQr, isLoading, error, clearError } = useAuth();
   const navigate = useNavigate();
+  const [showQrScanner, setShowQrScanner] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,15 +30,24 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleSimulateQrScan = async () => {
-    try {
-      // Simulasi token QR unik siswa yang dipindai kamera
-      await loginWithQr("mock-valid-qr-token-siswa");
-      navigate("/dashboard/siswa", { replace: true });
-    } catch (err) {
-      // Error ditangani context
-    }
-  };
+  const handleQrScan = useCallback(
+    async (qrToken: string) => {
+      try {
+        clearError();
+
+        await loginWithQr(qrToken);
+
+        setShowQrScanner(false);
+
+        navigate("/dashboard/siswa", {
+          replace: true,
+        });
+      } catch (err) {
+        throw err;
+      }
+    },
+    [clearError, loginWithQr, navigate],
+  );
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-emerald-500/10 p-4">
@@ -97,16 +108,25 @@ export const LoginPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Tombol Simulasi Scan QR Khusus Siswa */}
+        {/* Tombol Scan QR Khusus Siswa */}
         <button
           type="button"
-          onClick={handleSimulateQrScan}
+          onClick={() => {
+            clearError();
+            setShowQrScanner(true);
+          }}
           disabled={isLoading}
           className="w-full rounded-xl border-2 border-dashed border-teal-500 bg-teal-50/50 py-3 text-xs font-bold text-teal-700 transition-all hover:bg-teal-100/50 disabled:opacity-50"
         >
-          📲 Simulasi Scan QR Siswa (Satu Scan Masuk)
+          📷 Scan QR Siswa
         </button>
       </div>
+      {showQrScanner && (
+        <QrScanner
+          onScan={handleQrScan}
+          onClose={() => setShowQrScanner(false)}
+        />
+      )}
     </div>
   );
 };
