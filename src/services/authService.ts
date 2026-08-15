@@ -20,6 +20,10 @@ const MOCK_USERS: Record<string, UserProfile> = {
       "read:class_reports",
       "read:school_master",
       "write:school_master",
+      "read:students",
+      "write:students",
+      "import:students",
+      "generate:student_qr",
     ],
   },
   walikelas: {

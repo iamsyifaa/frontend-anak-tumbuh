@@ -78,6 +78,13 @@ let classGroups: ClassGroup[] = [
     homeroomTeacherId: "u-5",
     homeroomTeacherName: "Rina Lestari, S.Pd",
   },
+  {
+    id: "cls-tk-a",
+    schoolId: "sch-102",
+    academicYearId: "ay-2026-102",
+    levelName: "Kelompok A",
+    rombelName: "Bintang",
+  },
 ];
 
 const teachers: MasterTeacherOption[] = [

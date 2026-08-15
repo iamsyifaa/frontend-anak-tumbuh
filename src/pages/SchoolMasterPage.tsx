@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { MasterDialog } from "../components/master/MasterDialog";
+import { useNavigate } from "react-router-dom";
 import { FieldError } from "../components/master/FieldError";
 import { schoolMasterService, MASTER_PERMISSIONS } from "../services/schoolMasterService";
 import {
@@ -40,6 +41,7 @@ const EmptyState: React.FC<{ title: string; description: string }> = ({ title, d
 );
 
 export const SchoolMasterPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user, hasPermission } = useAuth();
   const canRead = hasPermission(MASTER_PERMISSIONS.read);
   const canWrite = hasPermission(MASTER_PERMISSIONS.write);
@@ -158,6 +160,15 @@ export const SchoolMasterPage: React.FC = () => {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {hasPermission("read:students") && (
+            <button
+              type="button"
+              onClick={() => navigate(user?.role === "super_admin" ? "/dashboard/admin/students" : "/dashboard/kepsek/students")}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-extrabold text-slate-700 shadow-sm hover:bg-slate-50"
+            >
+              <GraduationCap className="h-4 w-4" /> Manajemen Siswa
+            </button>
+          )}
           <button
             type="button"
             onClick={() => void loadSchools()}
