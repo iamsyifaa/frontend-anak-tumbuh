@@ -116,3 +116,40 @@
   .qr-print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 16mm; display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10mm; }
   .qr-card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
 }
+
+@layer utilities {
+  @keyframes section-reveal {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .anim-stagger-1,
+  .anim-stagger-2,
+  .anim-stagger-3,
+  .anim-stagger-4,
+  .anim-stagger-5,
+  .anim-stagger-6 {
+    opacity: 0;
+    animation: section-reveal 0.55s ease-out forwards;
+  }
+
+  .anim-stagger-1 { animation-delay: 0.02s; }
+  .anim-stagger-2 { animation-delay: 0.12s; }
+  .anim-stagger-3 { animation-delay: 0.22s; }
+  .anim-stagger-4 { animation-delay: 0.32s; }
+  .anim-stagger-5 { animation-delay: 0.42s; }
+  .anim-stagger-6 { animation-delay: 0.52s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .anim-stagger-1,
+    .anim-stagger-2,
+    .anim-stagger-3,
+    .anim-stagger-4,
+    .anim-stagger-5,
+    .anim-stagger-6 {
+      opacity: 1;
+      animation: none;
+      transform: none;
+    }
+  }
+}

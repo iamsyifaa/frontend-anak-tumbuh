@@ -57,7 +57,7 @@ export const RankingView: React.FC<RankingViewProps> = ({
       <div className="bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 rounded-[2.5rem] p-6 md:p-8 lg:p-10 border-4 border-white shadow-2xl shadow-sky-200/80 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
         <div className="space-y-2 relative z-10 max-w-xl">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-black text-white border border-white/30 shadow-xs font-heading">
-            <Medal className="w-4 h-4 text-amber-300 animate-spin" />
+            <Medal className="w-4 h-4 text-amber-300" />
             <span>Papan Peringkat Siswa Berprestasi</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white font-heading">
@@ -137,6 +137,7 @@ export const RankingView: React.FC<RankingViewProps> = ({
                     name={user.name}
                     emoji={user.avatarEmoji}
                     bg={user.avatarBg}
+                    avatarUrl={user.avatarUrl}
                     size="xl"
                   />
                   <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 text-xs font-black bg-slate-950 text-white px-3 py-1 rounded-full z-10 shadow-md border-2 border-white font-heading">
@@ -237,6 +238,7 @@ export const RankingView: React.FC<RankingViewProps> = ({
                           name={user.name}
                           emoji={user.avatarEmoji}
                           bg={user.avatarBg}
+                          avatarUrl={user.avatarUrl}
                           size="md"
                         />
                         <div>

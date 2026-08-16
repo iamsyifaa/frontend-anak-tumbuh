@@ -74,6 +74,7 @@ export interface RankingUserItem {
   level: number;
   avatarEmoji?: string;
   avatarBg?: string;
+  avatarUrl?: string;
   isCurrentUser: boolean;
 }
 

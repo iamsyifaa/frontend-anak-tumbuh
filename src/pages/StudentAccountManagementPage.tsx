@@ -5,6 +5,7 @@ import { studentService } from "../services/studentService";
 import { studentAccountService } from "../services/studentAccountService";
 import { schoolMasterService } from "../services/schoolMasterService";
 import { Student } from "../types/student";
+import { ClassGroup } from "../types/school";
 import { GeneratedQrCredential } from "../types/studentAccount";
 import { MockQrCode } from "../components/student/MockQrCode";
 import { MasterDialog } from "../components/master/MasterDialog";
@@ -18,7 +19,7 @@ export const StudentAccountManagementPage: React.FC = () => {
   const [schoolId, setSchoolId] = useState(user?.schoolId ?? "");
   const [students, setStudents] = useState<Student[]>([]);
   const [years, setYears] = useState<{ id: string; name: string }[]>([]);
-  const [groups, setGroups] = useState<{ id: string; name: string; levelName: string; rombelName: string; academicYearId: string }[]>([]);
+  const [groups, setGroups] = useState<ClassGroup[]>([]);
   const [schools, setSchools] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);

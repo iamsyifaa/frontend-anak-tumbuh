@@ -18,6 +18,16 @@ export interface WeeklyActivityItem {
   activityPercent: number;
 }
 
+export interface StudentActivityComment {
+  id: string;
+  habitId: string;
+  authorName: string;
+  authorRole: "wali_kelas" | "siswa";
+  parentCommentId?: string;
+  message: string;
+  createdAt: string;
+}
+
 export interface DashboardHistoryItem {
   id: string;
   dateLabel: string;
@@ -43,6 +53,7 @@ export interface StudentDashboardAggregate {
     certificates: CertificateItem[];
   };
   history: DashboardHistoryItem[];
+  teacherComments: StudentActivityComment[];
   weeklyActivity: WeeklyActivityItem[];
   ranking: {
     enabled: boolean;

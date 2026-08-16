@@ -110,7 +110,8 @@ export const pointConfigurationService = {
   // Mock contract untuk submission: backend mengembalikan hasil transaksi dan summary terbaru.
   async submitHabitAndGetSummary(user: UserProfile, studentId: string, habitId: string, initiative: string): Promise<{ pointsAwarded: number; expAwarded: number; summary: GamificationSummary }> {
     await new Promise((resolve) => setTimeout(resolve, 420));
-    if (user.role !== "siswa") throw new Error("Hanya siswa Digital yang dapat mengirim pengisian aplikasi.");
+    if (user.role !== "siswa" || user.method !== "DIGITAL") throw new Error("Hanya siswa Digital yang dapat mengirim pengisian aplikasi.");
+    if (studentId !== user.id) throw new Error("Anda hanya dapat mengirim pengisian untuk diri sendiri.");
     if (!studentId || !habitId || !initiative) throw new Error("Data submission tidak lengkap.");
     return {
       pointsAwarded: 10,

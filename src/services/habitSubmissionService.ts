@@ -10,7 +10,7 @@ const completedByStudent = new Map<string, Set<string>>();
 
 function assertDigitalStudent(user: UserProfile) {
   if (user.role !== "siswa") throw new Error("Hanya akun siswa yang dapat mengisi Kebiasaan Digital.");
-  if (user.method === "MANUAL") throw new Error("Siswa Manual tidak menggunakan form pengisian digital.");
+  if (user.method !== "DIGITAL") throw new Error("Siswa Manual tidak menggunakan form pengisian digital.");
 }
 
 function validateAnswers(habit: Habit, answers: HabitSubmissionInput["answers"]) {

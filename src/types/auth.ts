@@ -17,6 +17,7 @@ export interface UserProfile {
   schoolId?: string;
   classId?: string;
   avatarUrl?: string;
+  gender?: "L" | "P";
   permissions: string[]; // Permission list dikirim langsung dari backend
   method?: "DIGITAL" | "MANUAL"; // Metode pengisian siswa dari backend
 }

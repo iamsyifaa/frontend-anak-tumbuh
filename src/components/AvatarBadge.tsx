@@ -6,6 +6,7 @@ interface AvatarBadgeProps {
   role?: string;
   emoji?: string;
   bg?: string;
+  avatarUrl?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showOnlineStatus?: boolean;
   className?: string;
@@ -16,6 +17,7 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
   role,
   emoji,
   bg,
+  avatarUrl,
   size = 'md',
   showOnlineStatus = false,
   className = ''
@@ -40,34 +42,20 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
 
   return (
     <div className={`relative inline-flex items-center justify-center flex-shrink-0 ${className}`}>
-      <div
-        className={`${sizeClasses[size]} rounded-full border-white shadow-md shadow-sky-200/60 overflow-hidden flex items-center justify-center select-none transform hover:scale-110 hover:rotate-3 transition-all duration-300 bg-white`}
-      >
-        {isTeacher ? (
-          <div className="w-full h-full bg-gradient-to-tr from-amber-300 to-rose-300 flex items-center justify-center text-xl">
-            👩‍🏫
-          </div>
+      <div className={`${sizeClasses[size]} rounded-full border-white shadow-md shadow-sky-200/60 overflow-hidden flex items-center justify-center select-none bg-white`}>
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+        ) : isTeacher ? (
+          <div className="w-full h-full bg-gradient-to-tr from-amber-300 to-rose-300 flex items-center justify-center text-xl">👩‍🏫</div>
         ) : isParent ? (
-          <div className="w-full h-full bg-gradient-to-tr from-emerald-300 to-teal-300 flex items-center justify-center text-xl">
-            👨‍👩‍👧
-          </div>
+          <div className="w-full h-full bg-gradient-to-tr from-emerald-300 to-teal-300 flex items-center justify-center text-xl">👨‍👩‍👧</div>
         ) : isBoy ? (
-          <div className="w-full h-full p-0.5">
-            <Illustration name="laki_laki" alt={name} />
-          </div>
+          <div className="w-full h-full p-0.5"><Illustration name="laki_laki" alt={name} /></div>
         ) : (
-          <div className="w-full h-full p-0.5">
-            <Illustration name="perempuan" alt={name} />
-          </div>
+          <div className="w-full h-full p-0.5"><Illustration name="perempuan" alt={name} /></div>
         )}
       </div>
-      {showOnlineStatus && (
-        <span
-          className={`absolute bottom-0 right-0 ${statusSize[size]} bg-emerald-400 border-2 border-white rounded-full ring-2 ring-emerald-200 animate-pulse`}
-          title="Online"
-        ></span>
-      )}
+      {showOnlineStatus && <span className={`absolute bottom-0 right-0 ${statusSize[size]} bg-emerald-400 border-2 border-white rounded-full ring-2 ring-emerald-200`} title="Online" />}
     </div>
   );
 };
-

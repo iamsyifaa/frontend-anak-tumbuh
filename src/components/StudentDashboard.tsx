@@ -1,22 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { TabType, Habit, ActivityHistory, ToastMessage } from "../types";
-import {
-  INITIAL_HABITS,
-  INITIAL_HISTORIES,
-} from "../data/mockData";
-
+import { TabType } from "../types";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
-import { Toast } from "./Toast";
-
 import { BerandaView } from "./views/BerandaView";
 import { IsiKebiasaanView } from "./views/IsiKebiasaanView";
 import { PencapaianView } from "./views/PencapaianView";
 import { RankingView } from "./views/RankingView";
-import { GamificationSummary } from "./gamification/GamificationSummary";
-import { pointConfigurationService } from "../services/pointConfigurationService";
 import { useAuth } from "../context/AuthContext";
-import { GamificationSummary as GamificationSummaryType } from "../types/pointConfiguration";
 import { gamificationService } from "../services/gamificationService";
 import { GamificationOverview } from "../types/gamification";
 import { StudentDashboardAggregate as StudentDashboardAggregateView } from "./dashboard/StudentDashboardAggregate";
@@ -25,48 +15,56 @@ import { StudentDashboardAggregate as StudentDashboardAggregateType } from "../t
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [gamification, setGamification] = useState<GamificationSummaryType | null>(null);
   const [gamificationLoading, setGamificationLoading] = useState(true);
   const [gamificationOverview, setGamificationOverview] = useState<GamificationOverview | null>(null);
   const [gamificationError, setGamificationError] = useState<string | null>(null);
   const [dashboardAggregate, setDashboardAggregate] = useState<StudentDashboardAggregateType | null>(null);
   const [dashboardAggregateLoading, setDashboardAggregateLoading] = useState(true);
   const [dashboardAggregateError, setDashboardAggregateError] = useState<string | null>(null);
+  const [currentPoints, setCurrentPoints] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [remainingChances, setRemainingChances] = useState(0);
+  const [activeTab, setActiveTab] = useState<TabType>("beranda");
+  const [achievementSection, setAchievementSection] = useState<"badges" | "awards" | "certificates" | undefined>(undefined);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
-    if (!user || user.role !== "siswa") { setGamificationLoading(false); setDashboardAggregateLoading(false); return; }
+    if (!user || user.role !== "siswa") {
+      setGamificationLoading(false);
+      setDashboardAggregateLoading(false);
+      return;
+    }
+
     setGamificationLoading(true);
     setGamificationError(null);
     setDashboardAggregateLoading(true);
     setDashboardAggregateError(null);
+
     void studentDashboardService.getAggregate(user)
-      .then((aggregate) => setDashboardAggregate(aggregate))
+      .then((aggregate) => {
+        setDashboardAggregate(aggregate);
+        setCurrentPoints(aggregate.summary.points);
+        setCurrentStreak(aggregate.streak.current);
+        setRemainingChances(aggregate.streak.remainingChances);
+      })
       .catch(() => {
         setDashboardAggregate(null);
         setDashboardAggregateError("Data dashboard siswa belum dapat dimuat. Coba lagi.");
       })
       .finally(() => setDashboardAggregateLoading(false));
-    void Promise.all([
-      pointConfigurationService.getStudentSummary(user),
-      gamificationService.getOverview(user.id),
-    ])
-      .then(([summary, overview]) => {
-        setGamification(summary);
-        setCurrentPoints(summary.points);
+
+    void gamificationService.getOverview(user.id)
+      .then((overview) => {
         setGamificationOverview(overview);
         setCurrentStreak(overview.streak.current);
         setRemainingChances(overview.streak.remainingChances);
       })
       .catch(() => {
-        setGamification(null);
         setGamificationOverview(null);
         setGamificationError("Data gamifikasi belum dapat dimuat. Coba lagi.");
       })
       .finally(() => setGamificationLoading(false));
   }, [user]);
-
-  // Main Navigation View State
-  const [activeTab, setActiveTab] = useState<TabType>("beranda");
 
   useEffect(() => {
     if (activeTab === "ranking" && !gamificationOverview?.features.rankingEnabled) {
@@ -74,114 +72,23 @@ export const StudentDashboard: React.FC = () => {
     }
   }, [activeTab, gamificationOverview]);
 
-  // Student State Logic as requested by prompt
-  const [currentPoints, setCurrentPoints] = useState<number>(0);
-  const [currentStreak, setCurrentStreak] = useState<number>(12);
-  const [remainingChances, setRemainingChances] = useState<number>(7);
-
-  // Data Collections State
-  const [habits, setHabits] = useState<Habit[]>(INITIAL_HABITS);
-  const [histories, setHistories] =
-    useState<ActivityHistory[]>(INITIAL_HISTORIES);
-
-  // Toast Notification State
-  const [toast, setToast] = useState<ToastMessage | null>(null);
-
-  // Mobile Drawer State
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  // Handle Habit Completion (Modal Submit)
-  const handleCompleteHabit = async (
-    habitId: string,
-    initiative: "Sadar Sendiri" | "Disuruh",
-    reflection: string,
-  ) => {
-    const targetHabit = habits.find((h) => h.id === habitId);
-    if (!targetHabit) return;
-
-    // 1. Lock the Habit Card
-    const updatedHabits = habits.map((h) => {
-      if (h.id === habitId) {
-        return {
-          ...h,
-          isLocked: true,
-          completedAt: "Baru Saja",
-          initiative,
-          reflection: reflection || "Melaksanakan kebiasaan dengan tertib.",
-        };
-      }
-      return h;
-    });
-    setHabits(updatedHabits);
-
-    // 2. Submit to backend boundary. Frontend does not calculate Poin/EXP/Level.
-    const backendResult = await pointConfigurationService.submitHabitAndGetSummary(user!, user!.id, habitId, initiative);
-    const earnedPoints = backendResult.pointsAwarded;
-    const newTotalPoints = backendResult.summary.points;
-    setGamification(backendResult.summary);
-    setCurrentPoints(newTotalPoints);
-
-
-    // 3. Add to History Timeline
-    const newHistoryItem: ActivityHistory = {
-      id: `hist-${Date.now()}`,
-      habitId: targetHabit.id,
-      habitTitle: targetHabit.title,
-      date: "Hari Ini, 12 Agustus 2026",
-      time:
-        new Date().toLocaleTimeString("id-ID", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }) + " WIB",
-      pointsEarned: earnedPoints,
-      initiative,
-      reflection:
-        reflection || "Melaksanakan kebiasaan dengan penuh tanggung jawab.",
-      comments: [
-        {
-          id: `c-auto-${Date.now()}`,
-          senderName: "Ibu Maya Indriani, S.Pd.",
-          senderRole: "Wali Kelas",
-          avatarEmoji: "guru",
-          avatarBg: "bg-rose-100",
-          content: `Hebat Rizky! Kebiasaan "${targetHabit.title}" telah tercatat (${initiative}). Pertahankan terus ya!`,
-          timestamp: "Baru saja",
-        },
-      ],
-    };
-    setHistories([newHistoryItem, ...histories]);
-
-    // 4. Trigger Success Toast Notification
-    setToast({
-      id: `toast-${Date.now()}`,
-      type: "success",
-      title: "Kebiasaan Terkunci & Berhasil Diisi! 🎉",
-      message: `Selamat, kamu mendapatkan +${earnedPoints} Poin Karakter (${initiative}).`,
-    });
-  };
-
-  // Streak Simulation Helper
-  const handleUpdateStreakChances = (delta: number) => {
-    setRemainingChances((prev) => Math.max(0, Math.min(7, prev + delta)));
-  };
-
-  const handleResetStreakChances = () => {
-    setRemainingChances(7);
-  };
-
   const reloadDashboardAggregate = () => {
     if (!user || user.role !== "siswa") return;
     setDashboardAggregateLoading(true);
     setDashboardAggregateError(null);
     void studentDashboardService.getAggregate(user)
-      .then((aggregate) => setDashboardAggregate(aggregate))
+      .then((aggregate) => {
+        setDashboardAggregate(aggregate);
+        setCurrentPoints(aggregate.summary.points);
+        setCurrentStreak(aggregate.streak.current);
+        setRemainingChances(aggregate.streak.remainingChances);
+      })
       .catch(() => setDashboardAggregateError("Data dashboard siswa belum dapat dimuat. Coba lagi."))
       .finally(() => setDashboardAggregateLoading(false));
   };
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#f4f7fc] text-slate-900 flex font-sans antialiased selection:bg-sky-200">
-      {/* Sidebar Navigation */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -193,44 +100,34 @@ export const StudentDashboard: React.FC = () => {
         rankingEnabled={Boolean(gamificationOverview?.features.rankingEnabled)}
       />
 
-      {/* Main Content Area */}
       <div className="flex-1 md:pl-72 flex flex-col min-w-0 min-h-screen transition-all duration-300">
-        <Header
-          activeTab={activeTab}
-          currentStreak={currentStreak}
-          remainingChances={remainingChances}
-          currentPoints={currentPoints}
-          isMobileOpen={isMobileOpen}
-          setIsMobileOpen={setIsMobileOpen}
-        />
+        {activeTab === "beranda" && (
+          <Header
+            activeTab={activeTab}
+            currentStreak={currentStreak}
+            remainingChances={remainingChances}
+            currentPoints={currentPoints}
+            isMobileOpen={isMobileOpen}
+            setIsMobileOpen={setIsMobileOpen}
+          />
+        )}
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-3 py-3 pt-1 sm:px-4 sm:py-5 md:px-8 md:py-8">
           {activeTab === "beranda" && (
             <div className="space-y-7">
+              <BerandaView onTabChange={setActiveTab} />
               <StudentDashboardAggregateView
                 data={dashboardAggregate}
                 loading={dashboardAggregateLoading}
                 error={dashboardAggregateError}
                 onRetry={reloadDashboardAggregate}
                 onOpenRanking={() => setActiveTab("ranking")}
-                onOpenAchievements={() => setActiveTab("pencapaian")}
-              />
-              <BerandaView
-                currentPoints={currentPoints}
-                currentStreak={currentStreak}
-                remainingChances={remainingChances}
-                habits={habits}
-                histories={histories}
-                onTabChange={setActiveTab}
-                onUpdateStreakChances={handleUpdateStreakChances}
-                onResetStreakChances={handleResetStreakChances}
+                onOpenAchievements={(section) => { setAchievementSection(section); setActiveTab("pencapaian"); }}
               />
             </div>
           )}
 
-          {activeTab === "kebiasaan" && (
-            <IsiKebiasaanView />
-          )}
+          {activeTab === "kebiasaan" && <IsiKebiasaanView />}
 
           {activeTab === "pencapaian" && (
             gamificationLoading ? (
@@ -243,6 +140,7 @@ export const StudentDashboard: React.FC = () => {
                 awards={gamificationOverview.awards}
                 certificates={gamificationOverview.certificates}
                 streak={gamificationOverview.streak}
+                initialSection={achievementSection}
               />
             ) : (
               <GamificationError message="Data pencapaian belum tersedia." />
@@ -265,9 +163,6 @@ export const StudentDashboard: React.FC = () => {
           )}
         </main>
       </div>
-
-      {/* Toast Notification */}
-      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 };

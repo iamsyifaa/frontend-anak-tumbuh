@@ -12,6 +12,8 @@ import { HabitConfigurationPage } from "./pages/HabitConfigurationPage";
 import { PointConfigurationPage } from "./pages/PointConfigurationPage";
 import { QrAuthHandlerPage } from "./pages/QrAuthHandlerPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ReportCenterPage } from "./pages/ReportCenterPage";
+import { WaliKelasDashboardPage } from "./pages/WaliKelasDashboardPage";
 
 export default function App() {
   return (
@@ -48,7 +50,38 @@ export default function App() {
             <Route path="/dashboard/kepsek/student-accounts" element={<StudentAccountManagementPage />} />
           </Route>
 
-          <Route path="/dashboard/siswa" element={<StudentDashboard />} />
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={["super_admin", "kepala_sekolah", "wali_kelas", "siswa"]}
+                requiredPermission="read:reports"
+              />
+            }
+          >
+            <Route path="/dashboard/reports" element={<ReportCenterPage />} />
+          </Route>
+
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={["wali_kelas"]}
+                requiredPermission="read:student_habits"
+              />
+            }
+          >
+            <Route path="/dashboard/walikelas" element={<WaliKelasDashboardPage />} />
+          </Route>
+
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={["siswa"]}
+                requiredPermission="read:own_habits"
+              />
+            }
+          >
+            <Route path="/dashboard/siswa" element={<StudentDashboard />} />
+          </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

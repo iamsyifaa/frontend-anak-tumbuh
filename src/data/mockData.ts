@@ -296,6 +296,7 @@ export const RANKING_KELAS: RankingUserItem[] = [
     level: 6,
     avatarEmoji: '👧',
     avatarBg: 'from-pink-400 to-rose-500 border-pink-300',
+    avatarUrl: '/image/perempuan.png',
     isCurrentUser: false
   },
   {
@@ -383,6 +384,7 @@ export const RANKING_ANGKATAN: RankingUserItem[] = [
     level: 6,
     avatarEmoji: '👧',
     avatarBg: 'from-pink-400 to-rose-500 border-pink-300',
+    avatarUrl: '/image/perempuan.png',
     isCurrentUser: false
   },
   {
