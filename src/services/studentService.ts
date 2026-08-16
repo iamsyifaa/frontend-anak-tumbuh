@@ -144,6 +144,33 @@ export const studentService = {
     return student;
   },
 
+  async updateStudent(user: UserProfile, studentId: string, input: CreateStudentInput): Promise<Student> {
+    await wait();
+    assertPermission(user, STUDENT_PERMISSIONS.write);
+    const index = students.findIndex((student) => student.id === studentId);
+    if (index < 0) throw new Error("Siswa tidak ditemukan.");
+    assertSchoolScope(user, students[index].schoolId);
+    if (!input.name.trim()) throw new Error("Nama siswa wajib diisi.");
+    if (!input.nisn && !input.nis) throw new Error("NISN atau NIS wajib diisi.");
+    if (!["DIGITAL", "MANUAL"].includes(input.method)) throw new Error("Metode pengisian harus DIGITAL atau MANUAL.");
+    const groups = await getClassGroups(user, input.schoolId);
+    const group = groups.find((item) => item.id === input.classGroupId && item.academicYearId === input.academicYearId);
+    if (!group) throw new Error("Kelas/rombel tidak valid untuk sekolah dan tahun ajaran tersebut.");
+    validateIdentityUniqueness(input, studentId);
+    const previous = students[index];
+    const updated: Student = {
+      ...previous,
+      ...input,
+      name: input.name.trim(),
+      nisn: input.nisn?.trim() || undefined,
+      nis: input.nis?.trim() || undefined,
+      qrStatus: input.method === "DIGITAL" ? previous.qrStatus : "not_available",
+      accountStatus: input.method === "DIGITAL" ? previous.accountStatus : "not_generated",
+    };
+    students[index] = updated;
+    return updated;
+  },
+
   async generateQr(user: UserProfile, studentId: string): Promise<Student> {
     await wait();
     assertPermission(user, STUDENT_PERMISSIONS.generateQr);

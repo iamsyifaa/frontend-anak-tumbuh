@@ -59,6 +59,8 @@ export const SchoolMasterPage: React.FC = () => {
   const [notice, setNotice] = useState("");
   const [dialog, setDialog] = useState<"school" | "academic-year" | "class-group" | null>(null);
   const [editingSchool, setEditingSchool] = useState<School | null>(null);
+  const [editingAcademicYear, setEditingAcademicYear] = useState<AcademicYear | null>(null);
+  const [editingClassGroup, setEditingClassGroup] = useState<ClassGroup | null>(null);
 
   const selectedSchool = useMemo(
     () => schools.find((school) => school.id === selectedSchoolId) ?? null,
@@ -137,13 +139,13 @@ export const SchoolMasterPage: React.FC = () => {
   };
 
   const handleAcademicYearSaved = async () => {
-    setDialog(null);
+    setDialog(null); setEditingAcademicYear(null);
     await loadSchoolChildren();
     notifySuccess("Tahun ajaran berhasil disimpan.");
   };
 
   const handleClassGroupSaved = async () => {
-    setDialog(null);
+    setDialog(null); setEditingClassGroup(null);
     await loadSchoolChildren();
     notifySuccess("Rombel berhasil disimpan.");
   };
@@ -324,18 +326,18 @@ export const SchoolMasterPage: React.FC = () => {
 
               {activeTab === "academic-year" && (
                 <div>
-                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="font-extrabold text-slate-900">Tahun Ajaran</h3><p className="text-xs text-slate-500">Enrollment baru menggunakan konteks tahun ajaran tanpa menghapus histori lama.</p></div>{canWrite && selectedSchool && <button type="button" onClick={() => setDialog("academic-year")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 py-2 text-xs font-extrabold text-white hover:bg-sky-700"><Plus className="h-4 w-4" /> Tambah Tahun Ajaran</button>}</div>
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="font-extrabold text-slate-900">Tahun Ajaran</h3><p className="text-xs text-slate-500">Enrollment baru menggunakan konteks tahun ajaran tanpa menghapus histori lama.</p></div>{canWrite && selectedSchool && <button type="button" onClick={() => { setEditingAcademicYear(null); setDialog("academic-year"); }} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 py-2 text-xs font-extrabold text-white hover:bg-sky-700"><Plus className="h-4 w-4" /> Tambah Tahun Ajaran</button>}</div>
                   {sectionLoading ? <div className="h-32 animate-pulse rounded-2xl bg-slate-50" /> : academicYears.length === 0 ? <EmptyState title="Belum ada tahun ajaran" description="Buat konteks tahun ajaran dari sekolah yang dipilih." /> : (
-                    <div className="overflow-x-auto rounded-2xl border border-slate-100"><table className="w-full min-w-[650px] text-left text-sm"><thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500"><tr><th className="px-4 py-3 font-extrabold">Tahun Ajaran</th><th className="px-4 py-3 font-extrabold">Mulai</th><th className="px-4 py-3 font-extrabold">Selesai</th><th className="px-4 py-3 font-extrabold">Status</th></tr></thead><tbody className="divide-y divide-slate-100">{academicYears.map((year) => <tr key={year.id}><td className="px-4 py-3 font-bold text-slate-800">{year.name}</td><td className="px-4 py-3 text-slate-500">{year.startDate}</td><td className="px-4 py-3 text-slate-500">{year.endDate}</td><td className="px-4 py-3"><span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${year.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{year.status === "active" ? "Aktif" : "Tidak Aktif"}</span></td></tr>)}</tbody></table></div>
+                    <div className="overflow-x-auto rounded-2xl border border-slate-100"><table className="w-full min-w-[650px] text-left text-sm"><thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500"><tr><th className="px-4 py-3 font-extrabold">Tahun Ajaran</th><th className="px-4 py-3 font-extrabold">Mulai</th><th className="px-4 py-3 font-extrabold">Selesai</th><th className="px-4 py-3 font-extrabold">Status</th><th className="px-4 py-3 text-right font-extrabold">Aksi</th></tr></thead><tbody className="divide-y divide-slate-100">{academicYears.map((year) => <tr key={year.id}><td className="px-4 py-3 font-bold text-slate-800">{year.name}</td><td className="px-4 py-3 text-slate-500">{year.startDate}</td><td className="px-4 py-3 text-slate-500">{year.endDate}</td><td className="px-4 py-3"><span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${year.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{year.status === "active" ? "Aktif" : "Tidak Aktif"}</span></td><td className="px-4 py-3 text-right">{canWrite && <button type="button" onClick={() => { setEditingAcademicYear(year); setDialog("academic-year"); }} className="text-xs font-black text-sky-600">Edit</button>}</td></tr>)}</tbody></table></div>
                   )}
                 </div>
               )}
 
               {activeTab === "class-group" && (
                 <div>
-                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="font-extrabold text-slate-900">Skeleton Kelas / Rombel</h3><p className="text-xs text-slate-500">Nama tingkat dan rombel tidak di-hard-code; backend tetap menentukan validasi scope dan assignment Wali Kelas.</p></div>{canWrite && selectedSchool && <button type="button" onClick={() => setDialog("class-group")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 py-2 text-xs font-extrabold text-white hover:bg-sky-700"><Plus className="h-4 w-4" /> Tambah Rombel</button>}</div>
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="font-extrabold text-slate-900">Skeleton Kelas / Rombel</h3><p className="text-xs text-slate-500">Nama tingkat dan rombel tidak di-hard-code; backend tetap menentukan validasi scope dan assignment Wali Kelas.</p></div>{canWrite && selectedSchool && <button type="button" onClick={() => { setEditingClassGroup(null); setDialog("class-group"); }} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 px-3 py-2 text-xs font-extrabold text-white hover:bg-sky-700"><Plus className="h-4 w-4" /> Tambah Rombel</button>}</div>
                   {sectionLoading ? <div className="h-32 animate-pulse rounded-2xl bg-slate-50" /> : classGroups.length === 0 ? <EmptyState title="Belum ada rombel" description="Skeleton ini siap menerima struktur tingkat/rombel dari backend." /> : (
-                    <div className="overflow-x-auto rounded-2xl border border-slate-100"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500"><tr><th className="px-4 py-3 font-extrabold">Tahun Ajaran</th><th className="px-4 py-3 font-extrabold">Tingkat</th><th className="px-4 py-3 font-extrabold">Rombel</th><th className="px-4 py-3 font-extrabold">Wali Kelas</th></tr></thead><tbody className="divide-y divide-slate-100">{classGroups.map((group) => { const year = academicYears.find((item) => item.id === group.academicYearId); return <tr key={group.id}><td className="px-4 py-3 text-slate-500">{year?.name ?? "—"}</td><td className="px-4 py-3 font-bold text-slate-800">{group.levelName}</td><td className="px-4 py-3 text-slate-700">{group.rombelName}</td><td className="px-4 py-3 text-slate-500">{group.homeroomTeacherName ?? "Belum ditetapkan"}</td></tr>; })}</tbody></table></div>
+                    <div className="overflow-x-auto rounded-2xl border border-slate-100"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500"><tr><th className="px-4 py-3 font-extrabold">Tahun Ajaran</th><th className="px-4 py-3 font-extrabold">Tingkat</th><th className="px-4 py-3 font-extrabold">Rombel</th><th className="px-4 py-3 font-extrabold">Wali Kelas</th><th className="px-4 py-3 text-right font-extrabold">Aksi</th></tr></thead><tbody className="divide-y divide-slate-100">{classGroups.map((group) => { const year = academicYears.find((item) => item.id === group.academicYearId); return <tr key={group.id}><td className="px-4 py-3 text-slate-500">{year?.name ?? "—"}</td><td className="px-4 py-3 font-bold text-slate-800">{group.levelName}</td><td className="px-4 py-3 text-slate-700">{group.rombelName}</td><td className="px-4 py-3 text-slate-500">{group.homeroomTeacherName ?? "Belum ditetapkan"}</td><td className="px-4 py-3 text-right">{canWrite && <button type="button" onClick={() => { setEditingClassGroup(group); setDialog("class-group"); }} className="text-xs font-black text-sky-600">Edit</button>}</td></tr>; })}</tbody></table></div>
                   )}
                 </div>
               )}
@@ -353,12 +355,12 @@ export const SchoolMasterPage: React.FC = () => {
         />
       </MasterDialog>
 
-      <MasterDialog open={dialog === "academic-year"} title="Tambah Tahun Ajaran" description={selectedSchool?.name} onClose={() => setDialog(null)}>
-        <AcademicYearForm schoolId={selectedSchoolId} onSaved={handleAcademicYearSaved} onError={setError} />
+      <MasterDialog open={dialog === "academic-year"} title={editingAcademicYear ? "Edit Tahun Ajaran" : "Tambah Tahun Ajaran"} description={selectedSchool?.name} onClose={() => { setDialog(null); setEditingAcademicYear(null); }}>
+        <AcademicYearForm schoolId={selectedSchoolId} academicYear={editingAcademicYear} onSaved={handleAcademicYearSaved} onError={setError} />
       </MasterDialog>
 
-      <MasterDialog open={dialog === "class-group"} title="Tambah Kelas / Rombel" description={selectedSchool?.name} onClose={() => setDialog(null)}>
-        <ClassGroupForm schoolId={selectedSchoolId} academicYears={academicYears} onSaved={handleClassGroupSaved} onError={setError} />
+      <MasterDialog open={dialog === "class-group"} title={editingClassGroup ? "Edit Kelas / Rombel" : "Tambah Kelas / Rombel"} description={selectedSchool?.name} onClose={() => { setDialog(null); setEditingClassGroup(null); }}>
+        <ClassGroupForm schoolId={selectedSchoolId} academicYears={academicYears} classGroup={editingClassGroup} onSaved={handleClassGroupSaved} onError={setError} />
       </MasterDialog>
     </div>
   );
@@ -398,9 +400,9 @@ const SchoolForm: React.FC<{ school: School | null; isSuperAdmin: boolean; onSav
   </form>;
 };
 
-const AcademicYearForm: React.FC<{ schoolId: string; onSaved: () => void; onError: (message: string) => void }> = ({ schoolId, onSaved, onError }) => {
+const AcademicYearForm: React.FC<{ schoolId: string; academicYear?: AcademicYear | null; onSaved: () => void; onError: (message: string) => void }> = ({ schoolId, academicYear, onSaved, onError }) => {
   const { user } = useAuth();
-  const [form, setForm] = useState<Omit<CreateAcademicYearInput, "schoolId">>({ name: "", startDate: "", endDate: "", status: "active" });
+  const [form, setForm] = useState<Omit<CreateAcademicYearInput, "schoolId">>({ name: academicYear?.name ?? "", startDate: academicYear?.startDate ?? "", endDate: academicYear?.endDate ?? "", status: academicYear?.status ?? "active" });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
@@ -414,7 +416,7 @@ const AcademicYearForm: React.FC<{ schoolId: string; onSaved: () => void; onErro
     setFieldErrors(next);
     if (Object.keys(next).length || !user) return;
     setSaving(true);
-    try { await schoolMasterService.createAcademicYear(user, { schoolId, ...form }); onSaved(); }
+    try { if (academicYear) await schoolMasterService.updateAcademicYear(user, academicYear.id, form); else await schoolMasterService.createAcademicYear(user, { schoolId, ...form }); onSaved(); }
     catch (err) { const message = err instanceof Error ? err.message : "Gagal menyimpan tahun ajaran."; setFieldErrors({ name: message }); onError(message); }
     finally { setSaving(false); }
   };
@@ -427,10 +429,10 @@ const AcademicYearForm: React.FC<{ schoolId: string; onSaved: () => void; onErro
   </form>;
 };
 
-const ClassGroupForm: React.FC<{ schoolId: string; academicYears: AcademicYear[]; onSaved: () => void; onError: (message: string) => void }> = ({ schoolId, academicYears, onSaved, onError }) => {
+const ClassGroupForm: React.FC<{ schoolId: string; academicYears: AcademicYear[]; classGroup?: ClassGroup | null; onSaved: () => void; onError: (message: string) => void }> = ({ schoolId, academicYears, classGroup, onSaved, onError }) => {
   const { user } = useAuth();
   const [teachers, setTeachers] = useState<{ id: string; schoolId: string; name: string }[]>([]);
-  const [form, setForm] = useState({ academicYearId: academicYears.find((year) => year.status === "active")?.id ?? academicYears[0]?.id ?? "", levelName: "", rombelName: "", homeroomTeacherId: "" });
+  const [form, setForm] = useState({ academicYearId: classGroup?.academicYearId ?? academicYears.find((year) => year.status === "active")?.id ?? academicYears[0]?.id ?? "", levelName: classGroup?.levelName ?? "", rombelName: classGroup?.rombelName ?? "", homeroomTeacherId: classGroup?.homeroomTeacherId ?? "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
@@ -445,7 +447,7 @@ const ClassGroupForm: React.FC<{ schoolId: string; academicYears: AcademicYear[]
     setErrors(next);
     if (Object.keys(next).length || !user) return;
     setSaving(true);
-    try { const input: CreateClassGroupInput = { schoolId, ...form, homeroomTeacherId: form.homeroomTeacherId || undefined }; await schoolMasterService.createClassGroup(user, input); onSaved(); }
+    try { const input: CreateClassGroupInput = { schoolId, ...form, homeroomTeacherId: form.homeroomTeacherId || undefined }; if (classGroup) await schoolMasterService.updateClassGroup(user, classGroup.id, form); else await schoolMasterService.createClassGroup(user, input); onSaved(); }
     catch (err) { const message = err instanceof Error ? err.message : "Gagal menyimpan rombel."; setErrors({ rombelName: message }); onError(message); }
     finally { setSaving(false); }
   };

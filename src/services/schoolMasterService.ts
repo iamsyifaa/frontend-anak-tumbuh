@@ -4,6 +4,8 @@ import {
   ClassGroup,
   CreateAcademicYearInput,
   CreateClassGroupInput,
+  UpdateAcademicYearInput,
+  UpdateClassGroupInput,
   CreateSchoolInput,
   MasterTeacherOption,
   School,
@@ -195,6 +197,19 @@ export const schoolMasterService = {
     return year;
   },
 
+  async updateAcademicYear(user: UserProfile, yearId: string, input: UpdateAcademicYearInput): Promise<AcademicYear> {
+    await wait(); assertPermission(user, MASTER_PERMISSIONS.write);
+    const index = academicYears.findIndex((year) => year.id === yearId); if (index < 0) throw new Error("Tahun ajaran tidak ditemukan.");
+    assertSchoolScope(user, academicYears[index].schoolId);
+    if (!input.name.trim()) throw new Error("Nama tahun ajaran wajib diisi.");
+    if (input.endDate <= input.startDate) throw new Error("Tanggal selesai harus setelah tanggal mulai.");
+    const duplicate = academicYears.some((year) => year.id !== yearId && year.schoolId === academicYears[index].schoolId && year.name.toLowerCase() === input.name.trim().toLowerCase());
+    if (duplicate) throw new Error("Tahun ajaran tersebut sudah ada di sekolah ini.");
+    if (input.status === "active") academicYears = academicYears.map((year) => year.schoolId === academicYears[index].schoolId ? { ...year, status: "inactive" } : year);
+    const updated = { ...academicYears[index], ...input, name: input.name.trim() };
+    academicYears[index] = updated; return updated;
+  },
+
   async listClassGroups(user: UserProfile, schoolId: string): Promise<ClassGroup[]> {
     await wait();
     assertPermission(user, MASTER_PERMISSIONS.read);
@@ -258,6 +273,21 @@ export const schoolMasterService = {
     };
     classGroups = [group, ...classGroups];
     return group;
+  },
+
+  async updateClassGroup(user: UserProfile, groupId: string, input: UpdateClassGroupInput): Promise<ClassGroup> {
+    await wait(); assertPermission(user, MASTER_PERMISSIONS.write);
+    const index = classGroups.findIndex((group) => group.id === groupId); if (index < 0) throw new Error("Rombel tidak ditemukan.");
+    assertSchoolScope(user, classGroups[index].schoolId);
+    if (!input.levelName.trim() || !input.rombelName.trim()) throw new Error("Tingkat dan nama rombel wajib diisi.");
+    const year = academicYears.find((item) => item.id === input.academicYearId && item.schoolId === classGroups[index].schoolId); if (!year) throw new Error("Tahun ajaran tidak valid.");
+    const duplicate = classGroups.some((group) => group.id !== groupId && group.schoolId === classGroups[index].schoolId && group.academicYearId === input.academicYearId && group.levelName.toLowerCase() === input.levelName.trim().toLowerCase() && group.rombelName.toLowerCase() === input.rombelName.trim().toLowerCase());
+    if (duplicate) throw new Error("Kombinasi tingkat dan rombel sudah digunakan.");
+    const teacher = input.homeroomTeacherId ? teachers.find((item) => item.id === input.homeroomTeacherId && item.schoolId === classGroups[index].schoolId) : undefined;
+    if (input.homeroomTeacherId && !teacher) throw new Error("Wali Kelas tidak valid untuk sekolah tersebut.");
+    if (teacher && classGroups.some((group) => group.id !== groupId && group.schoolId === classGroups[index].schoolId && group.academicYearId === input.academicYearId && group.homeroomTeacherId === teacher.id)) throw new Error("Wali Kelas sudah memiliki rombel aktif pada tahun ajaran tersebut.");
+    const updated = { ...classGroups[index], ...input, levelName: input.levelName.trim(), rombelName: input.rombelName.trim(), homeroomTeacherId: teacher?.id, homeroomTeacherName: teacher?.name };
+    classGroups[index] = updated; return updated;
   },
 
   async listTeachers(user: UserProfile, schoolId: string): Promise<MasterTeacherOption[]> {

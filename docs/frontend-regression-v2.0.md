@@ -24,8 +24,11 @@ Playwright/Cypress are not installed in this project, so this pass uses a struct
 | REG-12 | Report export permission is enforced in mock service | PASS |
 | REG-13 | Ranking remains conditional on feature flag in Student Dashboard | PASS by source contract |
 | REG-14 | QR auth route exists | PASS |
-| REG-15 | TypeScript lint | BLOCKED by incomplete/corrupt `node_modules` in supplied archive |
-| REG-16 | Vite production build | BLOCKED: `vite` binary unavailable in supplied `node_modules` |
+| REG-15 | Super Admin dashboard route is role-protected and links only to existing admin modules | PASS by source contract |
+| REG-16 | Super Admin dashboard exposes Digital/Manual status without manual recap actions | PASS by source contract |
+| REG-17 | Super Admin dashboard aggregation is isolated behind a service boundary | PASS by source contract |
+| REG-18 | TypeScript lint | PASS |
+| REG-19 | Vite production build | BLOCKED: supplied Rollup optional native dependency is missing |
 
 ## Bugs found and fixed
 
@@ -100,7 +103,7 @@ The Report Center UI checked permissions, but the mock service itself did not en
 - [x] No Input Rekap Manual, Isi Massal, Salin Hari Sebelumnya, or Import Rekap Buku UI was introduced.
 
 ## Build/test environment limitation
-The supplied archive contains an incomplete `node_modules` tree. `npm run lint` fails before project type-checking with missing `@types/*` entries, and `npm run build` cannot find the Vite binary. Playwright/Cypress are also not installed. These are environment/package-state blockers, not acceptance passes.
+The supplied archive contains an incomplete `node_modules` tree. `npm run lint` now passes after the dashboard change; `npm run build` remains blocked because the supplied Rollup optional native dependency `@rollup/rollup-linux-x64-gnu` is missing. Playwright/Cypress are also not installed. These are environment/package-state blockers, not acceptance passes.
 
 Recommended local verification:
 

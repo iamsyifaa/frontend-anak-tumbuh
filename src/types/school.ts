@@ -42,6 +42,10 @@ export interface UpdateSchoolInput extends CreateSchoolInput {
   status: SchoolStatus;
 }
 
+export interface UpdateAcademicYearInput extends Omit<CreateAcademicYearInput, "schoolId"> {}
+
+export interface UpdateClassGroupInput extends Omit<CreateClassGroupInput, "schoolId"> {}
+
 export interface CreateAcademicYearInput {
   schoolId: string;
   name: string;

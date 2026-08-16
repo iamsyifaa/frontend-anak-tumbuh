@@ -17,6 +17,8 @@ const MOCK_USERS: Record<string, UserProfile> = {
     schoolId: "sch-101",
     permissions: [
       "read:school_analytics",
+      "read:teachers",
+      "write:teachers",
       "read:class_reports",
       "read:school_master",
       "write:school_master",
@@ -78,14 +80,29 @@ const MOCK_USERS: Record<string, UserProfile> = {
   },
 };
 
+// Development-only credentials. Production authentication must be delegated to Laravel.
+const MOCK_PASSWORDS: Record<string, string> = {
+  admin: "admin123",
+  kepsek: "kepsek123",
+  walikelas: "walikelas123",
+};
+
 export const authService = {
   // Login dengan Username/Password
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     await new Promise((resolve) => setTimeout(resolve, 800)); // Simulasi latency jaringan
 
-    const user = MOCK_USERS[credentials.username.toLowerCase()];
-    if (!user) {
-      throw new Error("Username atau password tidak ditemukan.");
+    const username = credentials.username.trim().toLowerCase();
+    const user = MOCK_USERS[username];
+    const expectedPassword = MOCK_PASSWORDS[username];
+
+    // Username/password login is intentionally limited to administrative roles.
+    if (!user || !expectedPassword || user.role === "siswa") {
+      throw new Error("Akun administrasi tidak ditemukan.");
+    }
+
+    if (!credentials.password || credentials.password !== expectedPassword) {
+      throw new Error("Username atau password salah.");
     }
 
     return {

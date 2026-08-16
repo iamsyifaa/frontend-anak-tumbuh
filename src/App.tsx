@@ -14,6 +14,10 @@ import { QrAuthHandlerPage } from "./pages/QrAuthHandlerPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ReportCenterPage } from "./pages/ReportCenterPage";
 import { WaliKelasDashboardPage } from "./pages/WaliKelasDashboardPage";
+import { SuperAdminDashboardPage } from "./pages/SuperAdminDashboardPage";
+import { AdminLoginPage } from "./pages/AdminLoginPage";
+import { AdminDashboardShell } from "./layouts/AdminDashboardShell";
+import { TeacherManagementPage } from "./pages/TeacherManagementPage";
 
 export default function App() {
   return (
@@ -21,44 +25,70 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
           {/* Public QR handoff: the backend validates the credential in production. */}
           <Route path="/auth/qr" element={<QrAuthHandlerPage />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
+          <Route element={<ProtectedRoute allowedRoles={["super_admin"]} requiredPermission="read:school_master" />}>
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/admin" element={<SuperAdminDashboardPage />} />
+            </Route>
+          </Route>
+
           <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:school_master" />}>
-            <Route path="/dashboard/admin" element={<SchoolMasterPage />} />
-            <Route path="/dashboard/kepsek" element={<SchoolMasterPage />} />
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/admin/schools" element={<SchoolMasterPage />} />
+              <Route path="/dashboard/kepsek" element={<SchoolMasterPage />} />
+            </Route>
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:teachers" />}>
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/admin/teachers" element={<TeacherManagementPage />} />
+              <Route path="/dashboard/kepsek/teachers" element={<TeacherManagementPage />} />
+            </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:students" />}>
-            <Route path="/dashboard/admin/students" element={<StudentManagementPage />} />
-            <Route path="/dashboard/kepsek/students" element={<StudentManagementPage />} />
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/admin/students" element={<StudentManagementPage />} />
+              <Route path="/dashboard/kepsek/students" element={<StudentManagementPage />} />
+            </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:habit_config" />}>
-            <Route path="/dashboard/admin/habits" element={<HabitConfigurationPage />} />
-            <Route path="/dashboard/kepsek/habits" element={<HabitConfigurationPage />} />
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/admin/habits" element={<HabitConfigurationPage />} />
+              <Route path="/dashboard/kepsek/habits" element={<HabitConfigurationPage />} />
+            </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="read:point_config" />}>
-            <Route path="/dashboard/admin/points" element={<PointConfigurationPage />} />
-            <Route path="/dashboard/kepsek/points" element={<PointConfigurationPage />} />
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/admin/points" element={<PointConfigurationPage />} />
+              <Route path="/dashboard/kepsek/points" element={<PointConfigurationPage />} />
+            </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["super_admin", "kepala_sekolah"]} requiredPermission="generate:student_qr" />}>
-            <Route path="/dashboard/admin/student-accounts" element={<StudentAccountManagementPage />} />
-            <Route path="/dashboard/kepsek/student-accounts" element={<StudentAccountManagementPage />} />
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/admin/student-accounts" element={<StudentAccountManagementPage />} />
+              <Route path="/dashboard/kepsek/student-accounts" element={<StudentAccountManagementPage />} />
+            </Route>
           </Route>
 
           <Route
             element={
               <ProtectedRoute
-                allowedRoles={["super_admin", "kepala_sekolah", "wali_kelas", "siswa"]}
+                allowedRoles={["super_admin", "kepala_sekolah", "wali_kelas"]}
                 requiredPermission="read:reports"
               />
             }
           >
-            <Route path="/dashboard/reports" element={<ReportCenterPage />} />
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/reports" element={<ReportCenterPage />} />
+            </Route>
           </Route>
 
           <Route
@@ -69,7 +99,9 @@ export default function App() {
               />
             }
           >
-            <Route path="/dashboard/walikelas" element={<WaliKelasDashboardPage />} />
+            <Route element={<AdminDashboardShell />}>
+              <Route path="/dashboard/walikelas" element={<WaliKelasDashboardPage />} />
+            </Route>
           </Route>
 
           <Route

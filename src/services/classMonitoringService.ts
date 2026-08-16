@@ -1,5 +1,5 @@
 import { UserProfile } from "../types/auth";
-import { ClassMonitoringAggregate, ClassMonitoringDetail, MonitoringComment } from "../types/classMonitoring";
+import { ClassMonitoringAggregate, ClassMonitoringDetail, ClassMonitoringStudent, MonitoringComment } from "../types/classMonitoring";
 
 export const CLASS_MONITORING_PERMISSIONS = {
   read: "read:student_habits",
@@ -9,7 +9,7 @@ export const CLASS_MONITORING_PERMISSIONS = {
 
 const wait = (ms = 260) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const students = [
+const students: ClassMonitoringStudent[] = [
   {
     id: "stu-001", name: "Ahmad Rizky", nis: "25001", method: "DIGITAL" as const,
     activityStatus: "completed" as const, activityLabel: "Lengkap hari ini", progressPercent: 100,

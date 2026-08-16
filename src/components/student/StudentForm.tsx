@@ -14,19 +14,20 @@ interface Props {
   groups: ClassGroup[];
   onSaved: () => void;
   onCancel: () => void;
+  student?: Student | null;
 }
 
-export const StudentForm: React.FC<Props> = ({ user, schoolId, years, groups, onSaved, onCancel }) => {
+export const StudentForm: React.FC<Props> = ({ user, schoolId, years, groups, onSaved, onCancel, student }) => {
   const activeYear = years.find((year) => year.status === "active") ?? years[0];
   const [form, setForm] = useState<CreateStudentInput>({
     schoolId,
-    academicYearId: activeYear?.id ?? "",
-    classGroupId: "",
-    name: "",
-    nisn: "",
-    nis: "",
-    method: "DIGITAL",
-    status: "active",
+    academicYearId: student?.academicYearId ?? activeYear?.id ?? "",
+    classGroupId: student?.classGroupId ?? "",
+    name: student?.name ?? "",
+    nisn: student?.nisn ?? "",
+    nis: student?.nis ?? "",
+    method: student?.method ?? "DIGITAL",
+    status: student?.status ?? "active",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -42,7 +43,8 @@ export const StudentForm: React.FC<Props> = ({ user, schoolId, years, groups, on
     setError("");
     setSaving(true);
     try {
-      await studentService.createStudent(user, form);
+      if (student) await studentService.updateStudent(user, student.id, form);
+      else await studentService.createStudent(user, form);
       onSaved();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Gagal menyimpan siswa.");
@@ -72,7 +74,7 @@ export const StudentForm: React.FC<Props> = ({ user, schoolId, years, groups, on
           {(["DIGITAL", "MANUAL"] as StudentMethod[]).map((method) => <button key={method} type="button" onClick={() => setForm({ ...form, method })} className={`rounded-xl border p-3 text-left ${form.method === method ? "border-sky-400 bg-sky-50" : "border-slate-200 bg-white"}`}><p className="text-xs font-black">{method}</p><p className="mt-1 text-[11px] text-slate-500">{method === "DIGITAL" ? "Menggunakan aplikasi dan QR." : "Menggunakan buku fisik."}</p></button>)}
         </div>
       </div>
-      <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={onCancel} className="rounded-xl px-4 py-2.5 text-xs font-extrabold text-slate-600 hover:bg-slate-50">Batal</button><button disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-extrabold text-white disabled:opacity-60">{saving && <Loader2 className="h-4 w-4 animate-spin" />}Simpan Siswa</button></div>
+      <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={onCancel} className="rounded-xl px-4 py-2.5 text-xs font-extrabold text-slate-600 hover:bg-slate-50">Batal</button><button disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-extrabold text-white disabled:opacity-60">{saving && <Loader2 className="h-4 w-4 animate-spin" />}{student ? "Simpan Perubahan" : "Simpan Siswa"}</button></div>
     </form>
   );
 };
