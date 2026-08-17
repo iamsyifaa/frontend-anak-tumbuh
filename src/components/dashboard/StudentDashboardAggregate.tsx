@@ -25,7 +25,7 @@ export const StudentDashboardAggregate: React.FC<Props> = ({ data, loading, erro
   const unlockedBadges = data.achievements.badges.filter((badge) => badge.isUnlocked).length;
   const recentHistory = data.history.slice(0, 5);
 
-  return <div className="space-y-6 md:space-y-8 animate-fade-in">
+  return <div className="space-y-6 md:space-y-8 animate-fade-in pb-20 md:pb-0">
     {/* STATUS + PROGRES/AKTIVITAS + RANKING
         Desktop/tablet: two independent vertical column groups. Ranking stays in the
         wider left column so it fills the natural whitespace below the chart without
@@ -34,10 +34,11 @@ export const StudentDashboardAggregate: React.FC<Props> = ({ data, loading, erro
     <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start anim-stagger-2">
       {/* KOLOM KIRI — metrik → grafik → ranking */}
       <div className="lg:col-span-2 min-w-0 space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 items-start">
           <MetricCard icon={<Star />} label="Poin" value={data.summary.points.toLocaleString("id-ID")} helper="Sumber ranking" tone="amber" />
           <MetricCard icon={<Zap />} label="EXP" value={data.summary.exp.toLocaleString("id-ID")} helper="Sumber level" tone="violet" />
           <MetricCard icon={<Trophy />} label="Level" value={data.summary.levelLabel} helper="Dari response backend" tone="sky" />
+          <div className="lg:hidden min-w-0"><StreakCompactCard data={data} /></div>
         </div>
 
         <div className="bg-white rounded-[2rem] p-5 md:p-7 shadow-xl shadow-sky-100/60 border border-white">
@@ -53,7 +54,7 @@ export const StudentDashboardAggregate: React.FC<Props> = ({ data, loading, erro
       </div>
 
       {/* KOLOM KANAN — streak → riwayat */}
-      <div className="min-w-0 space-y-6">
+      <div className="hidden lg:block min-w-0 space-y-6">
         <StreakCard data={data} />
 
         <section className="bg-white rounded-[2rem] p-5 md:p-7 shadow-xl shadow-slate-100 border border-white lg:h-[360px] lg:overflow-y-auto">
@@ -64,10 +65,10 @@ export const StudentDashboardAggregate: React.FC<Props> = ({ data, loading, erro
     </section>
 
     {/* 4. ZONA APRESIASI & KOLEKSI */}
-    <section className="grid grid-cols-1 lg:grid-cols-3 gap-5 anim-stagger-5">
-      <SummaryPanel title="Badge" icon={<Award className="w-5 h-5 text-amber-500" />} value={`${unlockedBadges}/${data.achievements.badges.length}`} description="badge terbuka" onClick={() => onOpenAchievements("badges")} />
-      <SummaryPanel title="Penghargaan" icon={<Medal className="w-5 h-5 text-rose-500" />} value={`${data.achievements.awards.length}`} description="penghargaan diterima" onClick={() => onOpenAchievements("awards")} />
-      <SummaryPanel title="Sertifikat" icon={<FileText className="w-5 h-5 text-sky-500" />} value={`${data.achievements.certificates.length}`} description="dokumen tersedia" onClick={() => onOpenAchievements("certificates")} />
+    <section className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-5 anim-stagger-5">
+      <SummaryPanel compact title="Badge" icon={<Award className="w-5 h-5 text-amber-500" />} value={`${unlockedBadges}/${data.achievements.badges.length}`} description="badge terbuka" onClick={() => onOpenAchievements("badges")} />
+      <SummaryPanel compact title="Penghargaan" icon={<Medal className="w-5 h-5 text-rose-500" />} value={`${data.achievements.awards.length}`} description="penghargaan diterima" onClick={() => onOpenAchievements("awards")} />
+      <SummaryPanel compact title="Sertifikat" icon={<FileText className="w-5 h-5 text-sky-500" />} value={`${data.achievements.certificates.length}`} description="dokumen tersedia" onClick={() => onOpenAchievements("certificates")} />
     </section>
 
     {data.achievements.certificates.length > 0 && <section className="bg-white rounded-[2rem] p-5 md:p-7 shadow-xl shadow-sky-100/50 border border-white anim-stagger-6">
@@ -89,6 +90,13 @@ const RankingBanner: React.FC<{ rankLabel?: string | null; onOpenRanking: () => 
   </div>
 </section>;
 
+const StreakCompactCard: React.FC<{ data: Aggregate }> = ({ data }) => <div className="h-full min-h-[156px] bg-gradient-to-br from-orange-50 to-amber-50 rounded-[1.6rem] p-4 border-2 border-amber-100 shadow-lg shadow-amber-100/40 flex flex-col">
+  <div className="flex items-center gap-1.5"><Flame className="w-4 h-4 text-orange-500" /><h2 className="text-sm font-black text-slate-800">Streak</h2></div>
+  <p className="text-[9px] text-slate-500 font-semibold mt-0.5 truncate">{data.streak.monthLabel}</p>
+  <div className="flex items-end gap-1.5 mt-3"><span className="text-3xl font-black text-orange-600 leading-none">{data.streak.current}</span><span className="pb-0.5 text-[10px] font-black text-orange-800">hari</span></div>
+  <div className="mt-auto pt-2 flex items-center justify-between gap-2"><p className="text-[8px] font-black uppercase text-slate-500">Rekor</p><p className="text-[11px] font-black text-slate-800">{data.streak.best} hari</p></div>
+</div>;
+
 const StreakCard: React.FC<{ data: Aggregate }> = ({ data }) => <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-[2rem] p-5 md:p-7 border-2 border-amber-100 shadow-xl shadow-amber-100/50">
   <div className="flex items-center gap-2"><Flame className="text-orange-500" /><h2 className="text-xl font-black text-slate-800">Streak</h2></div>
   <p className="text-xs text-slate-500 font-semibold mt-1">{data.streak.monthLabel}</p>
@@ -99,7 +107,7 @@ const StreakCard: React.FC<{ data: Aggregate }> = ({ data }) => <div className="
 
 const MetricCard: React.FC<{ icon: React.ReactNode; label: string; value: string; helper: string; tone: "amber" | "violet" | "sky" }> = ({ icon, label, value, helper, tone }) => {
   const tones = { amber: "bg-amber-50 text-amber-700", violet: "bg-violet-50 text-violet-700", sky: "bg-sky-50 text-sky-700" };
-  return <div className="bg-white rounded-[1.6rem] p-4 md:p-5 shadow-lg shadow-slate-100 border border-slate-100 min-w-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+  return <div className="bg-white rounded-[1.6rem] p-4 md:p-5 shadow-lg shadow-slate-100 border border-slate-100 min-w-0 min-h-[156px] h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tones[tone]}`}>{icon}</div>
     <p className="text-xs font-black text-slate-500 mt-4">{label}</p>
     <p className="text-2xl md:text-3xl font-black text-slate-800 truncate mt-0.5">{value}</p>
@@ -109,9 +117,9 @@ const MetricCard: React.FC<{ icon: React.ReactNode; label: string; value: string
 
 const WeeklyChart: React.FC<{ items: Aggregate["weeklyActivity"] }> = ({ items }) => <div className="h-52 flex items-end gap-2 md:gap-4">{items.map((item) => <div key={item.date} className="flex-1 h-full flex flex-col justify-end items-center gap-2"><div className="w-full max-w-12 h-40 flex items-end rounded-xl bg-slate-50 overflow-hidden"><div title={`${item.completedHabits} kebiasaan`} className="w-full rounded-t-xl bg-sky-400 transition-all" style={{ height: `${item.activityPercent}%` }} /></div><span className="text-[10px] font-black text-slate-500">{item.dayLabel}</span></div>)}</div>;
 
-const SummaryPanel: React.FC<{ title: string; icon: React.ReactNode; value: string; description: string; onClick: () => void }> = ({ title, icon, value, description, onClick }) => <button onClick={onClick} className="text-left bg-white rounded-[2rem] p-5 border-2 border-slate-100 shadow-lg hover:-translate-y-1 hover:shadow-xl hover:border-sky-200 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sky-100">
-  <div className="flex items-center justify-between"><div className="flex items-center gap-2">{icon}<h3 className="font-black text-slate-800">{title}</h3></div><ChevronRight className="w-4 h-4 text-slate-400" /></div>
-  <p className="text-3xl font-black text-slate-800 mt-4">{value}</p><p className="text-xs text-slate-500 font-bold">{description}</p>
+const SummaryPanel: React.FC<{ title: string; icon: React.ReactNode; value: string; description: string; onClick: () => void; compact?: boolean }> = ({ title, icon, value, description, onClick, compact = false }) => <button onClick={onClick} className={`text-left bg-white rounded-[1.4rem] sm:rounded-[1.75rem] p-2.5 sm:p-4 md:p-5 border-2 border-slate-100 shadow-lg hover:-translate-y-1 hover:shadow-xl hover:border-sky-200 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sky-100 min-w-0 ${compact ? "min-h-[112px] sm:min-h-[130px]" : ""}`}>
+  <div className="flex items-center justify-between gap-1"><div className="flex items-center gap-1.5 min-w-0">{icon}<h3 className="font-black text-slate-800 text-[11px] sm:text-sm truncate">{title}</h3></div><ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0 hidden sm:block" /></div>
+  <p className="text-xl sm:text-3xl font-black text-slate-800 mt-2.5 sm:mt-4 leading-none">{value}</p><p className="text-[8px] sm:text-[11px] leading-tight text-slate-500 font-bold mt-1 break-words">{description}</p>
 </button>;
 
 const SmallStat: React.FC<{ label: string; value: string }> = ({ label, value }) => <div className="rounded-2xl bg-white/70 border border-white p-3"><p className="text-[10px] uppercase font-black text-slate-500">{label}</p><p className="text-lg font-black text-slate-800 mt-0.5">{value}</p></div>;

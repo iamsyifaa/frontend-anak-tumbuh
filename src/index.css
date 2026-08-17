@@ -153,3 +153,26 @@
     }
   }
 }
+
+@layer utilities {
+  @keyframes podium-in {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-podium-in { animation: podium-in .6s cubic-bezier(.22,1,.36,1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-podium-in { animation: none; }
+  }
+}
+
+
+@layer utilities {
+  @keyframes fade-in-soft {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in { animation: fade-in-soft .5s ease-out both; }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in { animation: none; }
+  }
+}

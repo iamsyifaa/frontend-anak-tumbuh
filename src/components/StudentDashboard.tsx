@@ -12,6 +12,7 @@ import { GamificationOverview } from "../types/gamification";
 import { StudentDashboardAggregate as StudentDashboardAggregateView } from "./dashboard/StudentDashboardAggregate";
 import { studentDashboardService } from "../services/studentDashboardService";
 import { StudentDashboardAggregate as StudentDashboardAggregateType } from "../types/studentDashboard";
+import { Home, CheckSquare, Trophy, Medal } from "lucide-react";
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -112,7 +113,7 @@ export const StudentDashboard: React.FC = () => {
           />
         )}
 
-        <main className="flex-1 w-full max-w-7xl mx-auto px-3 py-3 pt-1 sm:px-4 sm:py-5 md:px-8 md:py-8">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-3 py-3 pt-1 pb-24 sm:px-4 sm:py-5 md:px-8 md:py-8 md:pb-8">
           {activeTab === "beranda" && (
             <div className="space-y-7">
               <BerandaView onTabChange={setActiveTab} />
@@ -162,8 +163,50 @@ export const StudentDashboard: React.FC = () => {
             )
           )}
         </main>
+
+        <MobileBottomNav
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          rankingEnabled={Boolean(gamificationOverview?.features.rankingEnabled)}
+        />
       </div>
     </div>
+  );
+};
+
+const MobileBottomNav: React.FC<{
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+  rankingEnabled: boolean;
+}> = ({ activeTab, setActiveTab, rankingEnabled }) => {
+  const items = [
+    { id: "beranda" as TabType, label: "Beranda", icon: Home },
+    { id: "kebiasaan" as TabType, label: "Laporan", icon: CheckSquare },
+    { id: "pencapaian" as TabType, label: "Pencapaian", icon: Trophy },
+    ...(rankingEnabled ? [{ id: "ranking" as TabType, label: "Papan Juara", icon: Medal }] : []),
+  ];
+
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-[80] flex md:hidden justify-around items-end px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-xl border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl">
+      {items.map(({ id, label, icon: Icon }) => {
+        const active = activeTab === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            aria-current={active ? "page" : undefined}
+            onClick={() => setActiveTab(id)}
+            className={`group min-w-0 flex-1 flex flex-col items-center justify-center gap-1 py-1.5 text-[10px] font-black transition-transform duration-200 active:scale-90 ${active ? "text-sky-600" : "text-slate-400"}`}
+          >
+            <span className={`relative flex h-9 w-12 items-center justify-center rounded-full transition-all duration-300 ${active ? "bg-sky-100 -translate-y-1 shadow-sm" : "bg-transparent"}`}>
+              <Icon className={`h-5 w-5 transition-transform duration-300 ${active ? "-translate-y-0.5 scale-110" : "group-hover:scale-110"}`} />
+              {active && <span className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-sky-500 animate-pulse" />}
+            </span>
+            <span className="leading-none">{label}</span>
+          </button>
+        );
+      })}
+    </nav>
   );
 };
 

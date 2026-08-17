@@ -18,6 +18,7 @@ import { SuperAdminDashboardPage } from "./pages/SuperAdminDashboardPage";
 import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { AdminDashboardShell } from "./layouts/AdminDashboardShell";
 import { TeacherManagementPage } from "./pages/TeacherManagementPage";
+import { StudentCertificatePage } from "./pages/StudentCertificatePage";
 
 export default function App() {
   return (
@@ -113,6 +114,7 @@ export default function App() {
             }
           >
             <Route path="/dashboard/siswa" element={<StudentDashboard />} />
+            <Route path="/dashboard/siswa/certificate/:certificateId" element={<StudentCertificatePage />} />
           </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

@@ -33,7 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {isMobileOpen && <button type="button" aria-label="Tutup menu" onClick={() => setIsMobileOpen?.(false)} className="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-[2px] md:hidden" />}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-[min(18rem,88vw)] bg-[#0b1b3a] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out md:translate-x-0 ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col justify-between bg-[#0b1b3a] text-white md:flex">
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 flex items-center gap-2">
             <h1 className="font-extrabold text-2xl tracking-tight font-heading"><span className="text-white">anak</span><span className="text-sky-400">tumbuh</span><span className="text-amber-400">.id</span></h1>
