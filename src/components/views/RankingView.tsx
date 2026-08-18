@@ -151,88 +151,17 @@ export const RankingView: React.FC<RankingViewProps> = ({
           </div>
         </div>
 
-        {/* Table Rendering — mobile uses a compact grid so every important column stays visible. */}
-        <div className="sm:hidden">
-          <div className="grid grid-cols-[42px_minmax(0,1fr)_56px_58px_72px] items-center gap-1.5 bg-gradient-to-r from-sky-50 to-blue-50 px-3 py-3 text-[9px] font-black uppercase tracking-wide text-slate-500 border-b-2 border-slate-100">
-            <span className="text-center">Posisi</span>
-            <span>Siswa</span>
-            <span className="text-center">Level</span>
-            <span className="text-center">Streak</span>
-            <span className="text-right">Bintang</span>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {filteredList.map((user) => {
-              const isCurrentUser = user.isCurrentUser;
-              return (
-                <div
-                  key={user.id}
-                  className={`grid grid-cols-[42px_minmax(0,1fr)_56px_58px_72px] items-center gap-1.5 px-3 py-3 min-h-[76px] transition-all ${
-                    isCurrentUser
-                      ? 'bg-sky-100/90 text-sky-950 ring-2 ring-inset ring-sky-400'
-                      : 'text-slate-700 hover:bg-sky-50/50'
-                  }`}
-                >
-                  <div className="text-center">
-                    {user.rank <= 3 ? (
-                      <span className="text-lg leading-none">{user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : '🥉'}</span>
-                    ) : (
-                      <span className="font-black text-[11px] text-slate-600 font-heading">#{user.rank}</span>
-                    )}
-                  </div>
-
-                  <div className="flex min-w-0 items-center gap-2">
-                    <AvatarBadge
-                      name={user.name}
-                      emoji={user.avatarEmoji}
-                      bg={user.avatarBg}
-                      avatarUrl={user.avatarUrl}
-                      size="sm"
-                    />
-                    <div className="min-w-0">
-                      <p className="font-extrabold text-[11px] leading-tight text-slate-900 truncate font-heading">{user.name}</p>
-                      <p className="text-[9px] text-slate-500 font-semibold truncate">ID: {user.id}</p>
-                      {isCurrentUser && (
-                        <span className="inline-flex mt-0.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wide">
-                          Kamu 🌟
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="text-center min-w-0">
-                    <span className="inline-flex max-w-full justify-center bg-indigo-100 text-indigo-800 px-1.5 py-1 rounded-full text-[8px] leading-none font-black border border-indigo-200 font-heading">
-                      Lv {user.level}
-                    </span>
-                  </div>
-
-                  <div className="text-center min-w-0">
-                    <span className="inline-flex max-w-full items-center justify-center gap-0.5 bg-amber-100 text-amber-700 px-1.5 py-1 rounded-full text-[8px] leading-none font-black font-heading">
-                      <Flame className="w-3 h-3 shrink-0 text-amber-500" /> {user.streak}h
-                    </span>
-                  </div>
-
-                  <div className="text-right min-w-0">
-                    <span className="font-black text-sky-600 text-[11px] leading-none font-heading">{user.points.toLocaleString('id-ID')}</span>
-                    <span className="text-[9px] text-amber-500 ml-0.5">⭐</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Desktop/tablet table remains unchanged. */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full text-left text-xs">
+        {/* Table Rendering */}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px] text-left text-xs table-fixed sm:min-w-0">
             <thead className="bg-gradient-to-r from-sky-50 to-blue-50 text-slate-600 uppercase tracking-wider text-[11px] font-black border-b-2 border-slate-100 font-heading">
               <tr>
-                <th className="py-4 px-6 text-center">Posisi</th>
-                <th className="py-4 px-6">Siswa</th>
-                <th className="py-4 px-6">Kelas</th>
-                <th className="py-4 px-6 text-center">Level</th>
-                <th className="py-4 px-6 text-center">Streak</th>
-                <th className="py-4 px-6 text-right">Total Bintang</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 text-center w-16 sm:w-auto">Posisi</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6">Siswa</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 hidden sm:table-cell">Kelas</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 text-center w-20 sm:w-auto">Level</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 text-center w-20 sm:w-auto">Streak</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 text-right w-24 sm:w-auto">Total Bintang</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -247,33 +176,58 @@ export const RankingView: React.FC<RankingViewProps> = ({
                         : 'hover:bg-sky-50/50 text-slate-700'
                     }`}
                   >
-                    <td className="py-4 px-6 text-center">
+                    {/* Rank Number / Medal */}
+                    <td className="py-3 px-2 sm:py-4 sm:px-6 text-center">
                       {user.rank === 1 && <span className="text-xl">🥇</span>}
                       {user.rank === 2 && <span className="text-xl">🥈</span>}
                       {user.rank === 3 && <span className="text-xl">🥉</span>}
-                      {user.rank > 3 && <span className="font-black text-slate-600 font-heading">#{user.rank}</span>}
+                      {user.rank > 3 && (
+                        <span className="font-black text-slate-600 font-heading">#{user.rank}</span>
+                      )}
                     </td>
-                    <td className="py-4 px-6">
+
+                    {/* Student Info */}
+                    <td className="py-3 px-2 sm:py-4 sm:px-6">
                       <div className="flex items-center space-x-3.5">
-                        <AvatarBadge name={user.name} emoji={user.avatarEmoji} bg={user.avatarBg} avatarUrl={user.avatarUrl} size="md" />
+                        <AvatarBadge
+                          name={user.name}
+                          emoji={user.avatarEmoji}
+                          bg={user.avatarBg}
+                          avatarUrl={user.avatarUrl}
+                          size="md"
+                        />
                         <div>
                           <p className="font-extrabold text-slate-900 flex items-center gap-2 font-heading">
                             {user.name}
-                            {isCurrentUser && <span className="bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">Kamu 🌟</span>}
+                            {isCurrentUser && (
+                              <span className="bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                                Kamu 🌟
+                              </span>
+                            )}
                           </p>
                           <p className="text-[10px] text-slate-500 font-semibold">ID: {user.id}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6 font-bold text-slate-600">{user.className}</td>
-                    <td className="py-4 px-6 text-center">
-                      <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-[11px] font-black border border-indigo-200 font-heading">Level {user.level}</span>
+
+                    <td className="py-3 px-2 sm:py-4 sm:px-6 font-bold text-slate-600 hidden sm:table-cell">{user.className}</td>
+
+                    <td className="py-3 px-2 sm:py-4 sm:px-6 text-center">
+                      <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-[11px] font-black border border-indigo-200 font-heading">
+                        Level {user.level}
+                      </span>
                     </td>
+
                     <td className="py-4 px-6 text-center font-black text-amber-700">
-                      <span className="inline-flex items-center gap-1 bg-amber-100 px-3 py-1 rounded-full text-xs font-heading"><Flame className="w-4 h-4 text-amber-500" /> {user.streak} Hari</span>
+                      <span className="inline-flex items-center gap-1 bg-amber-100 px-3 py-1 rounded-full text-xs font-heading">
+                        <Flame className="w-4 h-4 text-amber-500" /> {user.streak} Hari
+                      </span>
                     </td>
-                    <td className="py-4 px-6 text-right">
-                      <span className="font-black text-sky-600 text-base font-heading">{user.points.toLocaleString('id-ID')}</span>
+
+                    <td className="py-3 px-2 sm:py-4 sm:px-6 text-right">
+                      <span className="font-black text-sky-600 text-base font-heading">
+                        {user.points.toLocaleString('id-ID')}
+                      </span>
                       <span className="text-xs text-amber-500 ml-1">⭐</span>
                     </td>
                   </tr>
