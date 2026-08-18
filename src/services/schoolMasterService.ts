@@ -59,6 +59,14 @@ let academicYears: AcademicYear[] = [
     endDate: "2027-06-30",
     status: "active",
   },
+  {
+    id: "ay-2027-101",
+    schoolId: "sch-101",
+    name: "2027/2028",
+    startDate: "2027-07-01",
+    endDate: "2028-06-30",
+    status: "inactive",
+  },
 ];
 
 let classGroups: ClassGroup[] = [
@@ -86,6 +94,20 @@ let classGroups: ClassGroup[] = [
     academicYearId: "ay-2026-102",
     levelName: "Kelompok A",
     rombelName: "Bintang",
+  },
+  {
+    id: "cls-6a-2027",
+    schoolId: "sch-101",
+    academicYearId: "ay-2027-101",
+    levelName: "Kelas 6",
+    rombelName: "Cendekia",
+  },
+  {
+    id: "cls-9b-2027",
+    schoolId: "sch-101",
+    academicYearId: "ay-2027-101",
+    levelName: "Kelas 9",
+    rombelName: "B",
   },
 ];
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, FileSpreadsheet,
-  KeyRound, Plus, QrCode, RefreshCw, Search, ShieldAlert, Users } from "lucide-react";
+  KeyRound, Plus, QrCode, RefreshCw, Search, ShieldAlert, Users, GraduationCap } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { MasterDialog } from "../components/master/MasterDialog";
 import { StudentForm } from "../components/student/StudentForm";
@@ -10,6 +10,7 @@ import { studentService, STUDENT_PERMISSIONS } from "../services/studentService"
 import { schoolMasterService } from "../services/schoolMasterService";
 import { AcademicYear, ClassGroup, School } from "../types/school";
 import { Student, StudentStatus } from "../types/student";
+import { StudentPlacementDialog } from "../components/student/StudentPlacementDialog";
 
 const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-800 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50";
 
@@ -31,7 +32,7 @@ export const StudentManagementPage: React.FC = () => {
   const [methodFilter, setMethodFilter] = useState<"ALL" | "DIGITAL" | "MANUAL">("ALL");
   const [statusFilter, setStatusFilter] = useState<"ALL" | StudentStatus>("ALL");
   const [groupFilter, setGroupFilter] = useState("ALL");
-  const [dialog, setDialog] = useState<"student" | "import" | null>(null);
+  const [dialog, setDialog] = useState<"student" | "import" | "placement" | null>(null);
 
   const load = useCallback(async () => {
     if (!user || !canRead) { setLoading(false); return; }
@@ -84,7 +85,7 @@ export const StudentManagementPage: React.FC = () => {
   return <div className="min-h-full space-y-5">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div><div className="mb-2 inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-[11px] font-black text-sky-700"><Users className="h-3.5 w-3.5" /> Student Management</div><h1 className="text-2xl font-black tracking-tight text-slate-900">Data Siswa</h1><p className="mt-1 max-w-2xl text-sm text-slate-500">Kelola siswa, enrollment, metode DIGITAL/MANUAL, dan import data master. Tidak ada alur input rekap buku manual.</p></div>
-      <div className="flex flex-wrap gap-2"><button onClick={() => window.location.assign(user?.role === "super_admin" ? "/dashboard/admin/student-accounts" : "/dashboard/kepsek/student-accounts")} className="inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2.5 text-xs font-black text-violet-700"><KeyRound className="h-4 w-4" />Akun & QR</button><button onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700"><RefreshCw className="h-4 w-4" />Refresh</button>{canImport && <button onClick={() => setDialog("import")} className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white"><FileSpreadsheet className="h-4 w-4" />Import Excel</button>}{canWrite && <button onClick={() => setDialog("student")} className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-black text-white"><Plus className="h-4 w-4" />Tambah Siswa</button>}</div>
+      <div className="flex flex-wrap gap-2"><button onClick={() => window.location.assign(user?.role === "super_admin" ? "/dashboard/admin/student-accounts" : "/dashboard/kepsek/student-accounts")} className="inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2.5 text-xs font-black text-violet-700"><KeyRound className="h-4 w-4" />Akun & QR</button>{canWrite && <button onClick={() => setDialog("placement")} className="inline-flex items-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-3 py-2.5 text-xs font-black text-sky-700"><GraduationCap className="h-4 w-4" />Kenaikan / Penempatan</button>}<button onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700"><RefreshCw className="h-4 w-4" />Refresh</button>{canImport && <button onClick={() => setDialog("import")} className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white"><FileSpreadsheet className="h-4 w-4" />Import Excel</button>}{canWrite && <button onClick={() => setDialog("student")} className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-black text-white"><Plus className="h-4 w-4" />Tambah Siswa</button>}</div>
     </div>
 
     {error && <div className="flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-700"><AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /><div><p className="font-black">Terjadi kesalahan</p><p className="mt-0.5 text-xs">{error}</p></div></div>}
@@ -97,5 +98,6 @@ export const StudentManagementPage: React.FC = () => {
 
     {dialog === "student" && user && <MasterDialog open title="Tambah Siswa" description="Pembuatan siswa tetap berada pada master data; metode hanya DIGITAL atau MANUAL." onClose={() => setDialog(null)}><StudentForm user={user} schoolId={schoolId} years={years} groups={groups} onCancel={() => setDialog(null)} onSaved={async () => { setDialog(null); await load(); notify("Siswa berhasil ditambahkan."); }} /></MasterDialog>}
     {dialog === "import" && user && <StudentImportWizard user={user} schoolId={schoolId} years={years} groups={groups} onClose={() => setDialog(null)} onCommitted={async () => { await load(); notify("Import siswa berhasil diproses."); }} />}
+    {dialog === "placement" && user && <StudentPlacementDialog user={user} schoolId={schoolId} students={students} years={years} groups={groups} onClose={() => setDialog(null)} onSaved={async () => { setDialog(null); await load(); notify("Penempatan siswa berhasil disimpan dan histori enrollment tetap dipertahankan."); }} />}
   </div>;
 };

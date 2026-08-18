@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { QrCode } from "lucide-react";
 import {
   Html5Qrcode,
   Html5QrcodeSupportedFormats,
@@ -67,7 +68,7 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, onClose }) => {
             fps: 10,
             qrbox: (viewfinderWidth, viewfinderHeight) => {
               const shortestSide = Math.min(viewfinderWidth, viewfinderHeight);
-              const size = Math.max(180, Math.min(280, Math.floor(shortestSide * 0.72)));
+              const size = Math.max(170, Math.min(280, Math.floor(shortestSide * 0.68)));
               return { width: size, height: size };
             },
             aspectRatio: 1,
@@ -145,34 +146,39 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, onClose }) => {
   }, [onScan]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
-        <div className="mb-4 text-center">
-          <h2 className="text-xl font-black text-emerald-800">Scan QR Siswa</h2>
-          <p className="mt-1 text-sm text-gray-500">
+    <div className="fixed inset-0 z-50 flex min-h-[100svh] items-center justify-center overflow-y-auto bg-[#232852]/75 px-3 py-4 backdrop-blur-sm sm:px-5 sm:py-6">
+      <div className="relative w-full max-w-lg rounded-[2rem] border border-white/80 bg-white p-4 shadow-[0_24px_80px_rgba(35,40,82,0.35)] sm:rounded-[2.5rem] sm:p-6">
+        <div className="pointer-events-none absolute -right-5 -top-5 h-20 w-20 rounded-full bg-[#EEB541]/25 blur-2xl" />
+        <div className="mb-4 text-center sm:mb-5">
+          <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#EEB541]/25 text-[#3A72E3]">
+            <QrCode className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h2 className="text-xl font-black text-[#232852] sm:text-2xl">Scan QR Siswa</h2>
+          <p className="mt-1 text-xs font-semibold text-[#232852]/55 sm:text-sm">
             Arahkan kamera ke QR siswa
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-2xl bg-black">
+        <div className="relative overflow-hidden rounded-[1.5rem] border-4 border-[#A4C1FD]/60 bg-[#232852] p-1.5 shadow-inner sm:rounded-[1.75rem] sm:p-2">
+          <div className="pointer-events-none absolute inset-5 z-10 rounded-2xl border-2 border-[#EEB541]/80 shadow-[0_0_0_9999px_rgba(35,40,82,0.08)] sm:inset-7" />
           <div
             id={containerIdRef.current}
             ref={containerRef}
-            className="w-full"
+            className="w-full overflow-hidden rounded-[1.1rem] [&_video]:!h-auto [&_video]:!w-full [&_video]:!rounded-[1rem]"
           />
         </div>
 
         {isProcessing && (
-          <div className="mt-4 rounded-xl bg-emerald-50 p-3 text-center">
-            <p className="text-sm font-semibold text-emerald-700">
+          <div className="mt-4 rounded-2xl bg-[#A4C1FD]/25 p-3 text-center">
+            <p className="text-sm font-bold text-[#232852]">
               QR terbaca. Memverifikasi...
             </p>
           </div>
         )}
 
         {error && (
-          <div className="mt-4 rounded-xl bg-red-50 p-3 text-center">
-            <p className="text-sm font-semibold text-red-600">{error}</p>
+          <div className="mt-4 rounded-2xl bg-red-50 p-3 text-center">
+            <p className="text-sm font-bold text-red-600">{error}</p>
           </div>
         )}
 
@@ -180,7 +186,7 @@ export const QrScanner: React.FC<QrScannerProps> = ({ onScan, onClose }) => {
           type="button"
           onClick={onClose}
           disabled={isProcessing}
-          className="mt-4 w-full rounded-xl border border-gray-300 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          className="mt-4 w-full rounded-2xl border-2 border-[#A4C1FD] bg-white py-3 text-sm font-black text-[#232852] transition hover:bg-[#EEF5FF] disabled:opacity-50 sm:py-3.5"
         >
           Batal
         </button>

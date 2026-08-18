@@ -27,6 +27,9 @@ export interface MonitoringComment {
   authorRole: "siswa" | "wali_kelas";
   message: string;
   createdAt: string;
+  activityId?: string;
+  activityName?: string;
+  parentCommentId?: string;
 }
 
 export interface ClassMonitoringDetail extends ClassMonitoringStudent {
@@ -67,6 +70,7 @@ export interface ClassMonitoringAggregate {
   permissions: {
     canRead: boolean;
     canComment: boolean;
+    canReadReports: boolean;
     canExport: boolean;
   };
 }

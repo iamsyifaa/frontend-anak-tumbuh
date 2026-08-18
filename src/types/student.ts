@@ -3,6 +3,13 @@ export type StudentStatus = "pending" | "active" | "inactive" | "transferred" | 
 export type StudentAccountStatus = "not_generated" | "generated";
 export type StudentQrStatus = "not_available" | "active" | "revoked";
 
+export interface StudentEnrollmentHistory {
+  academicYearId: string;
+  classGroupId: string;
+  status: StudentStatus;
+  recordedAt: string;
+}
+
 export interface Student {
   id: string;
   schoolId: string;
@@ -16,6 +23,7 @@ export interface Student {
   accountStatus: StudentAccountStatus;
   qrStatus: StudentQrStatus;
   createdAt: string;
+  enrollmentHistory?: StudentEnrollmentHistory[];
 }
 
 export interface CreateStudentInput {
@@ -51,6 +59,12 @@ export interface ValidatedImportRow extends ImportStudentRow {
   classGroupId?: string;
   academicYearId?: string;
   errors: ImportStudentError[];
+}
+
+export interface StudentPlacementInput {
+  studentIds: string[];
+  targetAcademicYearId: string;
+  targetClassGroupIdByStudent: Record<string, string>;
 }
 
 export interface StudentImportSummary {

@@ -21,3 +21,18 @@ export interface CreateTeacherInput {
 export interface UpdateTeacherInput extends CreateTeacherInput {
   classGroupId?: string;
 }
+
+export interface ImportTeacherRow {
+  rowNumber: number;
+  name: string;
+  username: string;
+  status: TeacherStatus | "";
+  levelName?: string;
+  rombelName?: string;
+}
+
+export interface ValidatedTeacherImportRow extends ImportTeacherRow {
+  valid: boolean;
+  classGroupId?: string;
+  errors: string[];
+}

@@ -1,10 +1,11 @@
 import { UserProfile } from "../types/auth";
-import { CreateTeacherInput, Teacher, UpdateTeacherInput } from "../types/teacher";
+import { CreateTeacherInput, ImportTeacherRow, Teacher, TeacherStatus, UpdateTeacherInput, ValidatedTeacherImportRow } from "../types/teacher";
 import { schoolMasterService } from "./schoolMasterService";
 
 export const TEACHER_PERMISSIONS = {
   read: "read:teachers",
   write: "write:teachers",
+  import: "import:teachers",
 } as const;
 
 const wait = (ms = 180) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -51,4 +52,56 @@ export const teacherService = {
     const updated = { ...teachers[index], ...input, name: input.name.trim(), username: input.username.trim(), classGroupName };
     teachers[index] = updated; return updated;
   },
+  async validateImport(user: UserProfile, schoolId: string, rows: ImportTeacherRow[]): Promise<ValidatedTeacherImportRow[]> {
+    await wait(); assertPermission(user, TEACHER_PERMISSIONS.import); assertScope(user, schoolId);
+    const groups = await schoolMasterService.listClassGroups(user, schoolId);
+    const seen = new Set<string>();
+    return rows.map((row) => {
+      const errors: string[] = [];
+      const username = row.username.trim().toLowerCase();
+      if (!row.name.trim()) errors.push("Nama guru wajib diisi.");
+      if (!username) errors.push("Username wajib diisi.");
+      if (row.status && !["active", "inactive"].includes(row.status)) errors.push("Status harus Aktif atau Nonaktif.");
+      if (username && seen.has(username)) errors.push("Username duplikat di dalam file.");
+      if (username && teachers.some((teacher) => teacher.username.toLowerCase() === username)) errors.push("Username sudah digunakan.");
+      if (username) seen.add(username);
+
+      let classGroupId: string | undefined;
+      if (row.levelName || row.rombelName) {
+        const group = groups.find((item) => item.levelName.trim().toLowerCase() === (row.levelName ?? "").trim().toLowerCase() && item.rombelName.trim().toLowerCase() === (row.rombelName ?? "").trim().toLowerCase());
+        if (!group) errors.push("Tingkat/rombel tidak valid untuk sekolah ini.");
+        classGroupId = group?.id;
+      }
+      return { ...row, valid: errors.length === 0, classGroupId, errors };
+    });
+  },
+
+  async commitImport(user: UserProfile, schoolId: string, rows: ValidatedTeacherImportRow[]): Promise<{ imported: number }> {
+    await wait(); assertPermission(user, TEACHER_PERMISSIONS.import); assertScope(user, schoolId);
+    if (!rows.length) throw new Error("Tidak ada data guru untuk diimport.");
+    const invalid = rows.find((row) => !row.valid);
+    if (invalid) throw new Error("Import guru ditolak karena masih ada baris yang tidak valid.");
+    const usernames = new Set(teachers.map((teacher) => teacher.username.toLowerCase()));
+    for (const row of rows) {
+      const username = row.username.trim().toLowerCase();
+      if (usernames.has(username)) throw new Error(`Import ditolak: username ${row.username} sudah terdaftar.`);
+      usernames.add(username);
+    }
+    const groups = await schoolMasterService.listClassGroups(user, schoolId);
+    const imported = rows.map((row, index) => {
+      const group = row.classGroupId ? groups.find((item) => item.id === row.classGroupId) : undefined;
+      return {
+        id: `teacher-import-${Date.now()}-${index}`,
+        schoolId,
+        name: row.name.trim(),
+        username: row.username.trim(),
+        status: (row.status || "active") as TeacherStatus,
+        classGroupId: group?.id,
+        classGroupName: group ? `${group.levelName} — ${group.rombelName}` : undefined,
+      };
+    });
+    teachers = [...imported, ...teachers];
+    return { imported: imported.length };
+  },
+
 };

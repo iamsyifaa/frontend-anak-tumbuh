@@ -8,6 +8,7 @@ import {
   StudentMethod,
   StudentStatus,
   ValidatedImportRow,
+  StudentPlacementInput,
 } from "../types/student";
 import { schoolMasterService } from "./schoolMasterService";
 import { collectImportIdentityErrors } from "./studentImportValidation";
@@ -158,6 +159,18 @@ export const studentService = {
     if (!group) throw new Error("Kelas/rombel tidak valid untuk sekolah dan tahun ajaran tersebut.");
     validateIdentityUniqueness(input, studentId);
     const previous = students[index];
+    const enrollmentChanged = previous.academicYearId !== input.academicYearId || previous.classGroupId !== input.classGroupId;
+    const enrollmentHistory = enrollmentChanged
+      ? [
+          ...(previous.enrollmentHistory ?? []),
+          {
+            academicYearId: previous.academicYearId,
+            classGroupId: previous.classGroupId,
+            status: previous.status,
+            recordedAt: new Date().toISOString(),
+          },
+        ]
+      : previous.enrollmentHistory;
     const updated: Student = {
       ...previous,
       ...input,
@@ -166,9 +179,55 @@ export const studentService = {
       nis: input.nis?.trim() || undefined,
       qrStatus: input.method === "DIGITAL" ? previous.qrStatus : "not_available",
       accountStatus: input.method === "DIGITAL" ? previous.accountStatus : "not_generated",
+      enrollmentHistory,
     };
     students[index] = updated;
     return updated;
+  },
+
+  async placeStudents(user: UserProfile, schoolId: string, input: StudentPlacementInput): Promise<{ updated: number }> {
+    await wait();
+    assertPermission(user, STUDENT_PERMISSIONS.write);
+    assertSchoolScope(user, schoolId);
+    if (!input.studentIds.length) throw new Error("Pilih minimal satu siswa untuk penempatan.");
+
+    const groups = await getClassGroups(user, schoolId);
+    const targetYearGroups = groups.filter((group) => group.academicYearId === input.targetAcademicYearId);
+    if (!targetYearGroups.length) throw new Error("Belum ada rombel pada tahun ajaran target.");
+
+    const selected = new Set(input.studentIds);
+    const selectedStudents = students.filter((student) => selected.has(student.id) && student.schoolId === schoolId);
+    if (selectedStudents.length !== input.studentIds.length) throw new Error("Ada siswa yang tidak berada dalam scope sekolah.");
+
+    selectedStudents.forEach((student) => {
+      const targetGroupId = input.targetClassGroupIdByStudent[student.id];
+      const targetGroup = targetYearGroups.find((group) => group.id === targetGroupId);
+      if (!targetGroup) throw new Error(`Rombel target untuk ${student.name} tidak valid.`);
+    });
+
+    const recordedAt = new Date().toISOString();
+    students = students.map((student) => {
+      if (!selected.has(student.id)) return student;
+      const targetGroupId = input.targetClassGroupIdByStudent[student.id];
+      const history = [
+        ...(student.enrollmentHistory ?? []),
+        {
+          academicYearId: student.academicYearId,
+          classGroupId: student.classGroupId,
+          status: student.status,
+          recordedAt,
+        },
+      ];
+      return {
+        ...student,
+        academicYearId: input.targetAcademicYearId,
+        classGroupId: targetGroupId,
+        status: "active",
+        enrollmentHistory: history,
+      };
+    });
+
+    return { updated: selectedStudents.length };
   },
 
   async generateQr(user: UserProfile, studentId: string): Promise<Student> {

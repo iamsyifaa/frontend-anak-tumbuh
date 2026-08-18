@@ -4,6 +4,7 @@ import { ClassMonitoringAggregate, ClassMonitoringDetail, ClassMonitoringStudent
 export const CLASS_MONITORING_PERMISSIONS = {
   read: "read:student_habits",
   comment: "write:teacher_notes",
+  reports: "read:class_reports",
   export: "export:class_monitoring",
 } as const;
 
@@ -43,8 +44,8 @@ const details: Record<string, ClassMonitoringDetail> = {
       { date: "2026-08-15", activityPercent: 100 },
     ],
     comments: [
-      { id: "c1", authorName: "Ahmad Rizky", authorRole: "siswa", message: "Hari ini saya berhasil menyelesaikan semua kebiasaan.", createdAt: "2026-08-15T08:35:00+07:00" },
-      { id: "c2", authorName: "Siti Nurhaliza, S.Pd", authorRole: "wali_kelas", message: "Bagus, pertahankan konsistensinya ya!", createdAt: "2026-08-15T09:00:00+07:00" },
+      { id: "c1", authorName: "Ahmad Rizky", authorRole: "siswa", message: "Hari ini saya berhasil menyelesaikan semua kebiasaan.", createdAt: "2026-08-15T08:35:00+07:00", activityId: "h1", activityName: "Bangun Pagi" },
+      { id: "c2", authorName: "Siti Nurhaliza, S.Pd", authorRole: "wali_kelas", message: "Bagus, pertahankan konsistensinya ya!", createdAt: "2026-08-15T09:00:00+07:00", activityId: "h1", activityName: "Bangun Pagi", parentCommentId: "c1" },
     ],
     achievements: [
       { id: "b1", type: "badge", title: "Konsisten Belajar", date: "2026-08-10" },
@@ -90,6 +91,7 @@ export const classMonitoringService = {
       permissions: {
         canRead: user.permissions.includes("*") || user.permissions.includes(CLASS_MONITORING_PERMISSIONS.read),
         canComment: user.permissions.includes("*") || user.permissions.includes(CLASS_MONITORING_PERMISSIONS.comment),
+        canReadReports: user.permissions.includes("*") || user.permissions.includes(CLASS_MONITORING_PERMISSIONS.reports),
         canExport: user.permissions.includes("*") || user.permissions.includes(CLASS_MONITORING_PERMISSIONS.export),
       },
     };
@@ -105,7 +107,7 @@ export const classMonitoringService = {
     return detail;
   },
 
-  async addComment(user: UserProfile, studentId: string, message: string): Promise<MonitoringComment> {
+  async addComment(user: UserProfile, studentId: string, message: string, activityId?: string): Promise<MonitoringComment> {
     await wait();
     assertPermission(user, CLASS_MONITORING_PERMISSIONS.comment);
     const group = await assertWaliScope(user);
@@ -113,9 +115,33 @@ export const classMonitoringService = {
     const trimmed = message.trim();
     if (!trimmed) throw new Error("Komentar wajib diisi.");
     if (trimmed.length > 500) throw new Error("Komentar maksimal 500 karakter.");
-    const comment: MonitoringComment = { id: `comment-${Date.now()}`, authorName: user.name, authorRole: "wali_kelas", message: trimmed, createdAt: new Date().toISOString() };
+    const activity = details[studentId].habits.find((habit) => habit.id === activityId);
+    const comment: MonitoringComment = {
+      id: `comment-${Date.now()}`, authorName: user.name, authorRole: "wali_kelas", message: trimmed,
+      createdAt: new Date().toISOString(), activityId: activity?.id, activityName: activity?.name,
+    };
     details[studentId].comments = [...details[studentId].comments, comment];
     details[studentId].commentCount += 1;
     return comment;
+  },
+
+  async replyComment(user: UserProfile, studentId: string, parentCommentId: string, message: string): Promise<MonitoringComment> {
+    await wait();
+    assertPermission(user, CLASS_MONITORING_PERMISSIONS.comment);
+    const group = await assertWaliScope(user);
+    const detail = details[studentId];
+    if (!detail || group.id !== "cls-5a") throw new Error("Siswa di luar scope rombel ditolak.");
+    const parent = detail.comments.find((item) => item.id === parentCommentId);
+    if (!parent) throw new Error("Komentar yang akan dibalas tidak ditemukan.");
+    const trimmed = message.trim();
+    if (!trimmed) throw new Error("Balasan wajib diisi.");
+    if (trimmed.length > 500) throw new Error("Balasan maksimal 500 karakter.");
+    const reply: MonitoringComment = {
+      id: `comment-${Date.now()}`, authorName: user.name, authorRole: "wali_kelas", message: trimmed,
+      createdAt: new Date().toISOString(), activityId: parent.activityId, activityName: parent.activityName, parentCommentId,
+    };
+    detail.comments = [...detail.comments, reply];
+    detail.commentCount += 1;
+    return reply;
   },
 };
