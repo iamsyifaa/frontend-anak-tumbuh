@@ -248,36 +248,42 @@ export const IsiKebiasaanView: React.FC<IsiKebiasaanViewProps> = () => {
       <div className="flex items-center gap-4 bg-white/20 p-4 rounded-3xl border-2 border-white/40"><div className="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xl">{completedCount}/{habits.length}</div><div><p className="text-sm font-black">Progress Hari Ini</p><p className="text-xs font-bold text-sky-100">{completedCount === habits.length ? "Semua kebiasaan selesai!" : `${habits.length - completedCount} kebiasaan lagi`}</p></div></div>
     </section>
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:hidden">
+    <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3">
       <CompactSummary percent={scorePercent} />
       <CompactPositive completedCount={completedCount} totalCount={totalCount} />
     </div>
 
-    <section className="grid grid-cols-1 lg:grid-cols-[1.35fr_.65fr] gap-6 items-start">
+    <section className="space-y-6">
       <div className="min-w-0 bg-white rounded-[2rem] p-4 sm:p-6 md:p-7 shadow-xl shadow-sky-100/60">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6"><div><p className="text-xs font-black uppercase tracking-wider text-sky-600">{new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" }).format(new Date())}</p><h3 className="text-lg md:text-xl font-extrabold text-slate-800">Isi Kebiasaanmu</h3></div></div>
-        <div className="hidden sm:grid sm:grid-cols-2 gap-5 items-start">
-          <div className="space-y-5">{habits.filter((_, i) => i % 2 === 0).map((habit, i) => renderHabitCard(habit, i * 2))}</div>
-          <div className="space-y-5">{habits.filter((_, i) => i % 2 === 1).map((habit, i) => renderHabitCard(habit, i * 2 + 1))}</div>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div>
+            <p className="text-xs font-black uppercase tracking-wider text-sky-600">{new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" }).format(new Date())}</p>
+            <h3 className="text-lg md:text-xl font-extrabold text-slate-800">Isi Kebiasaanmu</h3>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:hidden">{habits.map((habit, index) => renderHabitCard(habit, index))}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-start">
+          {habits.map((habit, index) => renderHabitCard(habit, index))}
+        </div>
       </div>
-      <div className="space-y-5 min-w-0">
-        <div className="hidden lg:block w-full rounded-3xl p-[2px] bg-gradient-to-r from-amber-300 via-pink-300 to-sky-300 shadow-xl shadow-sky-100/60"><div className="bg-white rounded-[calc(1.5rem-2px)] p-5 sm:p-6"><h3 className="text-sm font-extrabold text-indigo-600 mb-5">Ringkasan Hari Ini</h3><div className="flex items-center gap-4"><ProgressRing percent={scorePercent} /><div className="min-w-0 text-center flex-1"><img src="/image/bintang.png" alt="Bintang" className="w-16 h-auto mx-auto object-contain" /><p className="text-base font-extrabold text-amber-500 mt-1">{scorePercent >= 100 ? "Hebat!" : "Tetap semangat!"}</p><p className="text-xs text-slate-500 leading-relaxed mt-1">{completedCount} dari {totalCount} kebiasaan sudah tercatat.</p></div></div></div></div>
 
-        <div className="hidden lg:flex w-full bg-emerald-50 rounded-3xl p-5 flex items-start gap-3 shadow-md shadow-emerald-100/60"><img src="/image/bintang.png" alt="Bintang" className="w-14 h-14 object-contain flex-shrink-0" /><div><p className="text-sm font-extrabold text-emerald-800 mb-1">Penguatan Positif</p><p className="text-xs text-emerald-700 leading-relaxed">Kamu sudah melakukan {completedCount} dari {totalCount} kebiasaan hari ini! {completedCount === totalCount ? "Luar biasa, semua selesai!" : "Terus semangat!"}</p></div></div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 min-w-0">
+        <div className="w-full bg-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-sky-100/60">
+          <div className="flex items-center justify-between mb-4"><h3 className="text-sm font-extrabold text-slate-800">Riwayat Aktivitas</h3><span className="text-xs font-bold text-sky-600 bg-sky-50 rounded-full px-3 py-1.5">Terbaru</span></div>
+          <div className="space-y-2">{recentHistories.map((item) => <div key={item.id} className="flex items-center justify-between text-xs py-2.5 border-b border-slate-50 last:border-0"><div className="min-w-0"><p className="font-bold text-slate-700 truncate">{item.date}</p><p className="text-[11px] text-slate-400 truncate">{item.habitTitle}</p></div><span className="flex-shrink-0 ml-2 w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[11px]">{item.pointsEarned}</span></div>)}</div>
+        </div>
 
-        <div className="w-full bg-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-sky-100/60"><div className="flex items-center justify-between mb-4"><h3 className="text-sm font-extrabold text-slate-800">Riwayat Aktivitas</h3><span className="text-xs font-bold text-sky-600 bg-sky-50 rounded-full px-3 py-1.5">Terbaru</span></div><div className="space-y-2">{recentHistories.map((item) => <div key={item.id} className="flex items-center justify-between text-xs py-2.5 border-b border-slate-50 last:border-0"><div className="min-w-0"><p className="font-bold text-slate-700 truncate">{item.date}</p><p className="text-[11px] text-slate-400 truncate">{item.habitTitle}</p></div><span className="flex-shrink-0 ml-2 w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[11px]">{item.pointsEarned}</span></div>)}</div></div>
-
-        <div className="relative overflow-hidden bg-amber-50 rounded-3xl p-5 shadow-md shadow-amber-100/60"><div className="flex items-start gap-3 pr-16"><Lightbulb className="w-8 h-8 text-amber-500 flex-shrink-0" /><div><p className="text-sm font-extrabold text-slate-800">Tips Hebat</p><p className="text-xs text-slate-600 leading-relaxed mt-1">Kebiasaan yang dilakukan mandiri akan membentuk karakter hebat. Terus semangat ya!</p></div></div><img src="/image/mengacungkan%20jempol.png" alt="Anak memberi jempol" className="absolute right-1 bottom-0 w-20 h-20 object-contain" /></div>
+        <div className="relative overflow-hidden bg-amber-50 rounded-3xl p-5 shadow-md shadow-amber-100/60">
+          <div className="flex items-start gap-3 pr-16"><Lightbulb className="w-8 h-8 text-amber-500 flex-shrink-0" /><div><p className="text-sm font-extrabold text-slate-800">Tips Hebat</p><p className="text-xs text-slate-600 leading-relaxed mt-1">Kebiasaan yang dilakukan mandiri akan membentuk karakter hebat. Terus semangat ya!</p></div></div>
+          <img src="/image/mengacungkan%20jempol.png" alt="Anak memberi jempol" className="absolute right-1 bottom-0 w-20 h-20 object-contain" />
+        </div>
       </div>
     </section>
   </div>;
 };
 
-const CompactSummary: React.FC<{ percent: number }> = ({ percent }) => <div className="rounded-3xl p-[2px] bg-gradient-to-r from-amber-300 via-pink-300 to-sky-300 shadow-lg shadow-sky-100/50"><div className="bg-white rounded-[calc(1.5rem-2px)] p-3 h-full"><h3 className="text-[10px] font-black text-indigo-600 mb-2">Ringkasan Hari Ini</h3><div className="flex flex-col items-center text-center gap-2 sm:flex-row sm:text-left"><ProgressRing percent={percent} /><div className="min-w-0 text-center sm:text-left flex-1"><p className="text-xs font-extrabold text-amber-500">Tetap semangat!</p><p className="text-[9px] text-slate-500 leading-tight mt-1">Mulai isi kebiasaanmu.</p></div></div></div></div>;
+const CompactSummary: React.FC<{ percent: number }> = ({ percent }) => <div className="min-w-0 h-full rounded-3xl p-[2px] bg-gradient-to-r from-amber-300 via-pink-300 to-sky-300 shadow-lg shadow-sky-100/50"><div className="flex h-full min-h-[148px] flex-col items-center justify-center rounded-[calc(1.5rem-2px)] bg-white p-3 text-center"><h3 className="mb-2 w-full text-left text-[10px] font-black text-indigo-600">Ringkasan Hari Ini</h3><div className="flex min-w-0 flex-col items-center justify-center gap-2"><ProgressRing percent={percent} /><div className="min-w-0"><p className="text-xs font-extrabold text-amber-500">Tetap semangat!</p><p className="mt-1 text-[9px] leading-tight text-slate-500">Mulai isi kebiasaanmu.</p></div></div></div></div>;
 
-const CompactPositive: React.FC<{ completedCount: number; totalCount: number }> = ({ completedCount, totalCount }) => <div className="bg-emerald-50 rounded-3xl p-3 shadow-md shadow-emerald-100/60 flex flex-col items-center justify-center text-center"><img src="/image/bintang.png" alt="Bintang" className="w-11 h-11 object-contain" /><p className="text-[10px] font-extrabold text-emerald-800 mt-1">Penguatan Positif</p><p className="text-[9px] text-emerald-700 leading-tight mt-1">{completedCount}/{totalCount} kebiasaan hari ini. Terus semangat!</p></div>;
+const CompactPositive: React.FC<{ completedCount: number; totalCount: number }> = ({ completedCount, totalCount }) => <div className="min-w-0 h-full min-h-[148px] bg-emerald-50 rounded-3xl p-3 shadow-md shadow-emerald-100/60 flex flex-col items-center justify-center text-center"><img src="/image/bintang.png" alt="Bintang" className="w-11 h-11 object-contain" /><p className="text-[10px] font-extrabold text-emerald-800 mt-1">Penguatan Positif</p><p className="text-[9px] text-emerald-700 leading-tight mt-1">{completedCount}/{totalCount} kebiasaan hari ini. Terus semangat!</p></div>;
 
 const ProgressRing: React.FC<{ percent: number }> = ({ percent }) => {
   const radius = 43;

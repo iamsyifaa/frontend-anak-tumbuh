@@ -12,81 +12,23 @@ export const BerandaView: React.FC<BerandaViewProps> = ({ onTabChange }) => {
   const studentName = user?.name ?? "Siswa";
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-sky-300 via-sky-200 to-bg-[#f4f7fc] -mx-3 sm:-mx-4 md:-mx-8 -mt-3 sm:-mt-5 md:-mt-8 px-5 sm:px-8 md:px-12 lg:px-16 pt-20 sm:pt-24 md:pt-28 pb-12 sm:pb-14 md:pb-16 font-poppins anim-stagger-1">
-      <style>{`
-        @keyframes float-slower {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-6px); }
-        }
-        @keyframes float-cloud {
-          0%, 100% { transform: translate(0px, 0px); }
-          50% { transform: translate(4px, -14px); }
-        }
-        @keyframes sway-slow {
-          0%, 100% { transform: translateX(0px); }
-          50% { transform: translateX(6px); }
-        }
-        .anim-float-slower { animation: float-slower 5.5s ease-in-out infinite; }
-        .anim-float-cloud { animation: float-cloud 7s ease-in-out infinite; }
-        .anim-sway-slow { animation: sway-slow 6s ease-in-out infinite; }
-      `}</style>
+    <section className="relative overflow-hidden bg-gradient-to-b from-sky-300 via-sky-200 to-[#f4f7fc] -mx-3 sm:-mx-4 md:-mx-8 -mt-3 sm:-mt-5 md:-mt-8 px-5 sm:px-8 md:px-12 lg:px-16 pt-20 sm:pt-24 md:pt-28 pb-12 sm:pb-14 md:pb-16 font-poppins anim-stagger-1">
+      {/* Soft breathing blobs — decorative only, never cover the text. */}
+      <div className="pointer-events-none absolute -top-16 -right-16 h-56 w-56 rounded-full bg-sky-300/40 blur-[60px] animate-[pulse_8s_ease-in-out_infinite]" />
+      <div className="pointer-events-none absolute top-1/3 left-1/4 h-48 w-48 rounded-full bg-white/60 blur-[60px] animate-[pulse_10s_ease-in-out_infinite]" />
+      <div className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-amber-200/30 blur-[60px] animate-[pulse_9s_ease-in-out_infinite]" />
 
-      <img
-        src="/image/awan.png"
-        alt=""
-        className="absolute top-4 left-4 sm:top-10 sm:left-[6%] w-12 sm:w-16 md:w-20 opacity-65 anim-float-cloud pointer-events-none select-none z-[1]"
-      />
-      <img
-        src="/image/awan.png"
-        alt=""
-        className="absolute top-20 right-10 left-auto sm:top-24 sm:left-[20%] sm:right-auto w-14 sm:w-20 md:w-24 opacity-45 anim-sway-slow pointer-events-none select-none z-[1]"
-      />
-      <img
-        src="/image/awan.png"
-        alt=""
-        className="absolute bottom-10 left-1/3 w-16 md:w-24 opacity-35 anim-float-slower pointer-events-none select-none z-[1]"
-      />
-      <img
-        src="/image/awan.png"
-        alt=""
-        className="absolute top-16 right-1/4 sm:top-6 sm:right-[40%] w-12 sm:w-16 opacity-45 anim-float-cloud pointer-events-none select-none z-[1]"
-        style={{ animationDelay: "1.5s" }}
-      />
-      <img
-        src="/image/awan.png"
-        alt=""
-        className="absolute top-28 right-8 sm:top-12 sm:right-[8%] w-12 md:w-18 opacity-60 anim-float-cloud pointer-events-none select-none z-[1]"
-        style={{ animationDelay: "0.5s" }}
-      />
-      <img
-        src="/image/awan.png"
-        alt=""
-        className="absolute bottom-12 right-1/4 sm:bottom-10 sm:right-[25%] w-14 sm:w-20 opacity-40 anim-sway-slow pointer-events-none select-none z-[1]"
-        style={{ animationDelay: "2.2s" }}
-      />
-      <img
-        src="/image/awan.png"
-        alt=""
-        className="absolute top-44 left-2 sm:top-40 sm:left-[2%] w-9 sm:w-12 opacity-35 anim-float-slower pointer-events-none select-none z-[1]"
-        style={{ animationDelay: "1.2s" }}
-      />
-
-      <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-sky-300/35 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/3 w-56 h-56 rounded-full bg-white/80 blur-3xl pointer-events-none" />
-
-      <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-8">
-        <div className="min-w-0 w-full max-w-none sm:max-w-2xl text-left">
-          <p className="text-base font-semibold text-slate-500 flex items-center justify-start gap-1.5">
-            Selamat pagi,
-          </p>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-800 mt-1 break-words">
+      <div className="relative z-10 w-full">
+        <div className="w-full text-left">
+          <p className="text-base font-semibold text-slate-500">Selamat pagi,</p>
+          <h1 className="mt-1 text-3xl font-extrabold text-slate-800 break-words md:text-4xl lg:text-5xl">
             Hai, {studentName}!
           </h1>
-          <p className="w-full max-w-none sm:max-w-md text-base text-slate-600 mt-3">
+          <p className="mt-3 w-full max-w-none text-base text-slate-600 sm:max-w-2xl">
             Yuk, terus lakukan{" "}
             <button
               onClick={() => onTabChange("kebiasaan")}
-              className="text-sky-600 font-bold hover:underline underline-offset-2"
+              className="font-bold text-sky-600 underline-offset-2 hover:underline"
             >
               7 Kebiasaan Anak Indonesia Hebat
             </button>{" "}
@@ -94,26 +36,11 @@ export const BerandaView: React.FC<BerandaViewProps> = ({ onTabChange }) => {
           </p>
           <button
             onClick={() => onTabChange("kebiasaan")}
-            className="mt-5 inline-flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-lg shadow-sky-300/50 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-sky-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-sky-300/50 transition-all duration-300 hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow-xl active:translate-y-0"
           >
             Isi Kebiasaan Hari Ini
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="h-4 w-4" />
           </button>
-        </div>
-
-        <div className="relative flex-shrink-0 w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 aspect-square mx-auto sm:mx-0 translate-y-2 sm:translate-y-0">
-          <div
-            className="absolute inset-0 rounded-full blur-2xl opacity-70"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(186,230,253,0.9) 0%, rgba(224,242,254,0.4) 55%, rgba(224,242,254,0) 75%)",
-            }}
-          />
-          <img
-            src="/image/karakter_utama.png"
-            alt="Karakter Anak Hebat"
-            className="relative z-10 w-full h-full object-contain drop-shadow-xl anim-float-slower"
-          />
         </div>
       </div>
     </section>
