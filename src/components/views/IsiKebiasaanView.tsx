@@ -248,7 +248,7 @@ export const IsiKebiasaanView: React.FC<IsiKebiasaanViewProps> = () => {
       <div className="flex items-center gap-4 bg-white/20 p-4 rounded-3xl border-2 border-white/40"><div className="w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xl">{completedCount}/{habits.length}</div><div><p className="text-sm font-black">Progress Hari Ini</p><p className="text-xs font-bold text-sky-100">{completedCount === habits.length ? "Semua kebiasaan selesai!" : `${habits.length - completedCount} kebiasaan lagi`}</p></div></div>
     </section>
 
-    <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-2 sm:gap-3">
       <CompactSummary percent={scorePercent} />
       <CompactPositive completedCount={completedCount} totalCount={totalCount} />
     </div>
@@ -261,7 +261,7 @@ export const IsiKebiasaanView: React.FC<IsiKebiasaanViewProps> = () => {
             <h3 className="text-lg md:text-xl font-extrabold text-slate-800">Isi Kebiasaanmu</h3>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-5 items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-start">
           {habits.map((habit, index) => renderHabitCard(habit, index))}
         </div>
       </div>
@@ -281,15 +281,15 @@ export const IsiKebiasaanView: React.FC<IsiKebiasaanViewProps> = () => {
   </div>;
 };
 
-const CompactSummary: React.FC<{ percent: number }> = ({ percent }) => <div className="min-w-0 h-full rounded-3xl p-[2px] bg-gradient-to-r from-amber-300 via-pink-300 to-sky-300 shadow-lg shadow-sky-100/50"><div className="flex h-full min-h-[148px] flex-col items-center justify-center rounded-[calc(1.5rem-2px)] bg-white p-3 text-center"><h3 className="mb-2 w-full text-left text-[10px] font-black text-indigo-600">Ringkasan Hari Ini</h3><div className="flex min-w-0 flex-col items-center justify-center gap-2"><ProgressRing percent={percent} /><div className="min-w-0"><p className="text-xs font-extrabold text-amber-500">Tetap semangat!</p><p className="mt-1 text-[9px] leading-tight text-slate-500">Mulai isi kebiasaanmu.</p></div></div></div></div>;
+const CompactSummary: React.FC<{ percent: number }> = ({ percent }) => <div className="min-w-0 h-full rounded-3xl p-[2px] bg-gradient-to-r from-amber-300 via-pink-300 to-sky-300 shadow-lg shadow-sky-100/50"><div className="flex h-full min-h-[132px] sm:min-h-[148px] flex-col items-center justify-center rounded-[calc(1.5rem-2px)] bg-white p-2 sm:p-3 text-center"><h3 className="mb-1 sm:mb-2 w-full text-center sm:text-left text-[9px] sm:text-[10px] font-black text-indigo-600">Ringkasan Hari Ini</h3><div className="flex min-w-0 flex-col items-center justify-center gap-1 sm:gap-2"><ProgressRing percent={percent} /><div className="min-w-0"><p className="text-[10px] sm:text-xs font-extrabold text-amber-500">Tetap semangat!</p><p className="mt-1 text-[8px] sm:text-[9px] leading-tight text-slate-500">Mulai isi kebiasaanmu.</p></div></div></div></div>;
 
-const CompactPositive: React.FC<{ completedCount: number; totalCount: number }> = ({ completedCount, totalCount }) => <div className="min-w-0 h-full min-h-[148px] bg-emerald-50 rounded-3xl p-3 shadow-md shadow-emerald-100/60 flex flex-col items-center justify-center text-center"><img src="/image/bintang.png" alt="Bintang" className="w-11 h-11 object-contain" /><p className="text-[10px] font-extrabold text-emerald-800 mt-1">Penguatan Positif</p><p className="text-[9px] text-emerald-700 leading-tight mt-1">{completedCount}/{totalCount} kebiasaan hari ini. Terus semangat!</p></div>;
+const CompactPositive: React.FC<{ completedCount: number; totalCount: number }> = ({ completedCount, totalCount }) => <div className="min-w-0 h-full min-h-[132px] sm:min-h-[148px] bg-emerald-50 rounded-3xl p-2 sm:p-3 shadow-md shadow-emerald-100/60 flex flex-col items-center justify-center text-center"><img src="/image/bintang.png" alt="Bintang" className="w-8 h-8 sm:w-11 sm:h-11 object-contain" /><p className="text-[9px] sm:text-[10px] font-extrabold text-emerald-800 mt-1">Penguatan Positif</p><p className="text-[8px] sm:text-[9px] text-emerald-700 leading-tight mt-1">{completedCount}/{totalCount} kebiasaan hari ini. Terus semangat!</p></div>;
 
 const ProgressRing: React.FC<{ percent: number }> = ({ percent }) => {
   const radius = 43;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (percent / 100) * circumference;
-  return <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0"><svg className="w-full h-full -rotate-90" viewBox="0 0 104 104"><circle cx="52" cy="52" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="9" /><circle cx="52" cy="52" r={radius} fill="none" stroke="#10b981" strokeWidth="9" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} className="transition-all duration-700" /></svg><div className="absolute inset-0 flex flex-col items-center justify-center"><span className="text-2xl font-black text-slate-800">{percent}</span><span className="text-[9px] font-bold text-slate-400">Skor</span></div></div>;
+  return <div className="relative w-16 h-16 sm:w-24 sm:h-24 flex-shrink-0"><svg className="w-full h-full -rotate-90" viewBox="0 0 104 104"><circle cx="52" cy="52" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="9" /><circle cx="52" cy="52" r={radius} fill="none" stroke="#10b981" strokeWidth="9" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} className="transition-all duration-700" /></svg><div className="absolute inset-0 flex flex-col items-center justify-center"><span className="text-lg sm:text-2xl font-black text-slate-800">{percent}</span><span className="text-[9px] font-bold text-slate-400">Skor</span></div></div>;
 };
 
 const SuccessModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
