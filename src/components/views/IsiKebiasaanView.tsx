@@ -261,7 +261,7 @@ export const IsiKebiasaanView: React.FC<IsiKebiasaanViewProps> = () => {
             <h3 className="text-lg md:text-xl font-extrabold text-slate-800">Isi Kebiasaanmu</h3>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-start">
+        <div className="grid grid-cols-1 gap-5 items-start">
           {habits.map((habit, index) => renderHabitCard(habit, index))}
         </div>
       </div>
