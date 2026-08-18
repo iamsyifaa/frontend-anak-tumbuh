@@ -130,41 +130,38 @@ export const RankingView: React.FC<RankingViewProps> = ({
         })}
       </div>
 
-      {/* LEADERBOARD TABLE — compact and stable on mobile, no horizontal scrolling */}
-      <div className="bg-white rounded-2xl sm:rounded-[2.5rem] border-2 sm:border-4 border-white shadow-xl sm:shadow-2xl shadow-sky-100/70 overflow-hidden">
-        <div className="p-3 sm:p-6 md:p-7 border-b-2 border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h3 className="font-extrabold text-slate-800 text-sm sm:text-lg md:text-xl flex items-center gap-2 font-heading min-w-0">
-            <Award className="w-4 h-4 sm:w-6 sm:h-6 text-sky-500 shrink-0" />
+      {/* LEADERBOARD TABLE */}
+      <div className="bg-white rounded-[2.5rem] border-4 border-white shadow-2xl shadow-sky-100/70 overflow-hidden">
+        {/* Table Search & Title */}
+        <div className="p-4 sm:p-6 md:p-7 border-b-2 border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <h3 className="font-extrabold text-slate-800 text-base sm:text-lg md:text-xl flex items-center gap-2 font-heading min-w-0">
+            <Award className="w-6 h-6 text-sky-500" />
             <span className="truncate">Papan Skor {rankingType === 'kelas' ? 'Kelas VIII-B' : 'Seluruh Angkatan'}</span>
           </h3>
-          <div className="relative w-full sm:max-w-xs">
+
+          <div className="relative w-full sm:max-w-xs mt-1 sm:mt-0">
             <input
               type="text"
               placeholder="Cari teman sekelas..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 sm:pl-10 sm:pr-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl border-2 border-sky-100 bg-sky-50/40 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl border-2 border-sky-100 bg-sky-50/40 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400"
             />
-            <Search className="w-4 h-4 text-sky-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-sky-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           </div>
         </div>
 
-        <div className="overflow-hidden">
-          <table className="w-full table-fixed text-left text-[9px] sm:text-xs">
-            <colgroup>
-              <col className="w-[12%]" />
-              <col className="w-[43%]" />
-              <col className="w-[15%]" />
-              <col className="w-[18%]" />
-              <col className="w-[12%]" />
-            </colgroup>
-            <thead className="bg-gradient-to-r from-sky-50 to-blue-50 text-slate-600 uppercase tracking-wider text-[8px] sm:text-[11px] font-black border-b-2 border-slate-100 font-heading">
+        {/* Table Rendering */}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px] text-left text-xs table-fixed sm:min-w-0">
+            <thead className="bg-gradient-to-r from-sky-50 to-blue-50 text-slate-600 uppercase tracking-wider text-[11px] font-black border-b-2 border-slate-100 font-heading">
               <tr>
-                <th className="py-2 sm:py-4 px-1 sm:px-6 text-center">Posisi</th>
-                <th className="py-2 sm:py-4 px-1.5 sm:px-6">Siswa</th>
-                <th className="py-2 sm:py-4 px-1 sm:px-6 text-center">Level</th>
-                <th className="py-2 sm:py-4 px-1 sm:px-6 text-center">Streak</th>
-                <th className="py-2 sm:py-4 px-1 sm:px-6 text-right">Poin</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 text-center w-16 sm:w-auto">Posisi</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6">Siswa</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 hidden sm:table-cell">Kelas</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 text-center w-20 sm:w-auto">Level</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 text-center w-20 sm:w-auto">Streak</th>
+                <th className="py-3 px-2 sm:py-4 sm:px-6 text-right w-24 sm:w-auto">Total Bintang</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -173,39 +170,65 @@ export const RankingView: React.FC<RankingViewProps> = ({
                 return (
                   <tr
                     key={user.id}
-                    className={`transition-all ${isCurrentUser ? 'bg-sky-100/90 font-black text-sky-950 ring-2 ring-sky-400' : 'hover:bg-sky-50/50 text-slate-700'}`}
+                    className={`transition-all ${
+                      isCurrentUser
+                        ? 'bg-sky-100/90 font-black text-sky-950 ring-2 ring-sky-400'
+                        : 'hover:bg-sky-50/50 text-slate-700'
+                    }`}
                   >
-                    <td className="py-2 sm:py-4 px-1 sm:px-6 text-center">
-                      {user.rank === 1 && <span className="text-sm sm:text-xl">🥇</span>}
-                      {user.rank === 2 && <span className="text-sm sm:text-xl">🥈</span>}
-                      {user.rank === 3 && <span className="text-sm sm:text-xl">🥉</span>}
-                      {user.rank > 3 && <span className="font-black text-slate-600 font-heading">#{user.rank}</span>}
+                    {/* Rank Number / Medal */}
+                    <td className="py-3 px-2 sm:py-4 sm:px-6 text-center">
+                      {user.rank === 1 && <span className="text-xl">🥇</span>}
+                      {user.rank === 2 && <span className="text-xl">🥈</span>}
+                      {user.rank === 3 && <span className="text-xl">🥉</span>}
+                      {user.rank > 3 && (
+                        <span className="font-black text-slate-600 font-heading">#{user.rank}</span>
+                      )}
                     </td>
-                    <td className="py-2 sm:py-4 px-1.5 sm:px-6 overflow-hidden">
-                      <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-                        <div className="shrink-0 scale-[0.72] sm:scale-100 origin-left">
-                          <AvatarBadge name={user.name} emoji={user.avatarEmoji} bg={user.avatarBg} avatarUrl={user.avatarUrl} size="md" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-extrabold text-slate-900 truncate font-heading text-[9px] sm:text-sm">
+
+                    {/* Student Info */}
+                    <td className="py-3 px-2 sm:py-4 sm:px-6">
+                      <div className="flex items-center space-x-3.5">
+                        <AvatarBadge
+                          name={user.name}
+                          emoji={user.avatarEmoji}
+                          bg={user.avatarBg}
+                          avatarUrl={user.avatarUrl}
+                          size="md"
+                        />
+                        <div>
+                          <p className="font-extrabold text-slate-900 flex items-center gap-2 font-heading">
                             {user.name}
-                            {isCurrentUser && <span className="hidden sm:inline-flex ml-1.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">Kamu 🌟</span>}
+                            {isCurrentUser && (
+                              <span className="bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                                Kamu 🌟
+                              </span>
+                            )}
                           </p>
-                          <p className="text-[8px] sm:text-[10px] text-slate-500 font-semibold truncate">ID: {user.id}</p>
+                          <p className="text-[10px] text-slate-500 font-semibold">ID: {user.id}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2 sm:py-4 px-1 sm:px-6 text-center">
-                      <span className="inline-flex max-w-full bg-indigo-100 text-indigo-800 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[11px] font-black border border-indigo-200 font-heading truncate">Lv {user.level}</span>
-                    </td>
-                    <td className="py-2 sm:py-4 px-1 sm:px-6 text-center font-black text-amber-700">
-                      <span className="inline-flex items-center justify-center gap-0.5 sm:gap-1 bg-amber-100 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-heading whitespace-nowrap">
-                        <Flame className="w-2.5 h-2.5 sm:w-4 sm:h-4 text-amber-500" /> {user.streak}<span className="hidden sm:inline"> Hari</span>
+
+                    <td className="py-3 px-2 sm:py-4 sm:px-6 font-bold text-slate-600 hidden sm:table-cell">{user.className}</td>
+
+                    <td className="py-3 px-2 sm:py-4 sm:px-6 text-center">
+                      <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-[11px] font-black border border-indigo-200 font-heading">
+                        Level {user.level}
                       </span>
                     </td>
-                    <td className="py-2 sm:py-4 px-1 sm:px-6 text-right whitespace-nowrap">
-                      <span className="font-black text-sky-600 text-[10px] sm:text-base font-heading">{user.points.toLocaleString('id-ID')}</span>
-                      <span className="text-[9px] sm:text-xs text-amber-500 ml-0.5">⭐</span>
+
+                    <td className="py-4 px-6 text-center font-black text-amber-700">
+                      <span className="inline-flex items-center gap-1 bg-amber-100 px-3 py-1 rounded-full text-xs font-heading">
+                        <Flame className="w-4 h-4 text-amber-500" /> {user.streak} Hari
+                      </span>
+                    </td>
+
+                    <td className="py-3 px-2 sm:py-4 sm:px-6 text-right">
+                      <span className="font-black text-sky-600 text-base font-heading">
+                        {user.points.toLocaleString('id-ID')}
+                      </span>
+                      <span className="text-xs text-amber-500 ml-1">⭐</span>
                     </td>
                   </tr>
                 );
