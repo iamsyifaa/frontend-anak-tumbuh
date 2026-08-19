@@ -10,6 +10,7 @@ import { StudentAccountManagementPage } from "../pages/StudentAccountManagementP
 import { HabitConfigurationPage } from "../pages/HabitConfigurationPage";
 import { PointConfigurationPage } from "../pages/PointConfigurationPage";
 import { ReportCenterPage } from "../pages/ReportCenterPage";
+import { CertificateManagementPage } from "../pages/CertificateManagementPage";
 
 export const PrincipalRoutes: React.FC = () => (
   <Routes>
@@ -23,6 +24,7 @@ export const PrincipalRoutes: React.FC = () => (
         <Route path="/dashboard/kepsek/student-accounts" element={<ProtectedRoute requiredPermission="generate:student_qr" />}><Route index element={<StudentAccountManagementPage />} /></Route>
         <Route path="/dashboard/kepsek/habits" element={<ProtectedRoute requiredPermission="read:habit_config" />}><Route index element={<HabitConfigurationPage />} /></Route>
         <Route path="/dashboard/kepsek/points" element={<ProtectedRoute requiredPermission="read:point_config" />}><Route index element={<PointConfigurationPage />} /></Route>
+        <Route path="/dashboard/kepsek/certificates" element={<ProtectedRoute requiredPermission="manage:certificates" />}><Route index element={<CertificateManagementPage />} /></Route>
         <Route path="/dashboard/kepsek/reports" element={<ProtectedRoute requiredPermission="read:reports" />}><Route index element={<ReportCenterPage />} /></Route>
       </Route>
     </Route>

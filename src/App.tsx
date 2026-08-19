@@ -8,7 +8,6 @@ import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { UnauthorizedPage } from "./pages/UnauthorizedPage";
 import { QrAuthHandlerPage } from "./pages/QrAuthHandlerPage";
 import { StudentDashboard } from "./components/StudentDashboard";
-import { StudentCertificatePage } from "./pages/StudentCertificatePage";
 
 import { SuperAdminDashboardShell } from "./layouts/SuperAdminDashboardShell";
 import { PrincipalDashboardShell } from "./layouts/PrincipalDashboardShell";
@@ -24,6 +23,7 @@ import { StudentAccountManagementPage } from "./pages/StudentAccountManagementPa
 import { HabitConfigurationPage } from "./pages/HabitConfigurationPage";
 import { PointConfigurationPage } from "./pages/PointConfigurationPage";
 import { ReportCenterPage } from "./pages/ReportCenterPage";
+import { CertificateManagementPage } from "./pages/CertificateManagementPage";
 
 export default function App() {
   return (
@@ -61,8 +61,8 @@ export default function App() {
               <Route element={<ProtectedRoute requiredPermission="read:point_config" />}>
                 <Route path="/dashboard/admin/points" element={<PointConfigurationPage />} />
               </Route>
-              <Route element={<ProtectedRoute requiredPermission="read:reports" />}>
-                <Route path="/dashboard/admin/reports" element={<ReportCenterPage />} />
+              <Route element={<ProtectedRoute requiredPermission="manage:certificates" />}>
+                <Route path="/dashboard/admin/certificates" element={<CertificateManagementPage />} />
               </Route>
             </Route>
           </Route>
@@ -92,6 +92,9 @@ export default function App() {
               <Route element={<ProtectedRoute requiredPermission="read:point_config" />}>
                 <Route path="/dashboard/kepsek/points" element={<PointConfigurationPage />} />
               </Route>
+              <Route element={<ProtectedRoute requiredPermission="manage:certificates" />}>
+                <Route path="/dashboard/kepsek/certificates" element={<CertificateManagementPage />} />
+              </Route>
               <Route element={<ProtectedRoute requiredPermission="read:reports" />}>
                 <Route path="/dashboard/kepsek/reports" element={<ReportCenterPage />} />
               </Route>
@@ -115,7 +118,6 @@ export default function App() {
           {/* Student area remains independent from the role dashboards. */}
           <Route element={<ProtectedRoute allowedRoles={["siswa"]} requiredPermission="read:own_habits" />}>
             <Route path="/dashboard/siswa" element={<StudentDashboard />} />
-            <Route path="/dashboard/siswa/certificate/:certificateId" element={<StudentCertificatePage />} />
           </Route>
 
           {/* Unknown dashboard path: return to the role login instead of rendering a blank page. */}

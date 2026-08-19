@@ -26,7 +26,7 @@ export const StudentDashboard: React.FC = () => {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [remainingChances, setRemainingChances] = useState(0);
   const [activeTab, setActiveTab] = useState<TabType>("beranda");
-  const [achievementSection, setAchievementSection] = useState<"badges" | "awards" | "certificates" | undefined>(undefined);
+  const [achievementSection, setAchievementSection] = useState<"badges" | "awards" | undefined>(undefined);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -139,7 +139,6 @@ export const StudentDashboard: React.FC = () => {
               <PencapaianView
                 badges={gamificationOverview.badges}
                 awards={gamificationOverview.awards}
-                certificates={gamificationOverview.certificates}
                 streak={gamificationOverview.streak}
                 initialSection={achievementSection}
               />

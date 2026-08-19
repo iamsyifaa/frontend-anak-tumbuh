@@ -1,8 +1,9 @@
 import { UserRole } from "./auth";
 
-export type ReportScope = "student" | "class" | "school" | "achievement";
+export type ReportScope = "student" | "class" | "school" | "achievement" | "habit" | "initiative";
 export type ReportFormat = "csv" | "pdf";
 export type ReportPeriodPreset = "this_week" | "this_month" | "this_term" | "custom";
+export type InitiativeReportValue = "ALL" | "Sadar sendiri" | "Disuruh";
 
 export interface ReportFilter {
   scope: ReportScope;
@@ -11,6 +12,8 @@ export interface ReportFilter {
   endDate: string;
   classId?: string;
   studentId?: string;
+  habitId?: string;
+  initiative?: InitiativeReportValue;
   search?: string;
 }
 
@@ -36,6 +39,11 @@ export interface ReportRow {
   badges: number;
   awards: number;
   completedDays: number | null;
+  habitPercent?: number | null;
+  habitPoints?: number | null;
+  habitExp?: number | null;
+  selfInitiativeCount?: number | null;
+  promptedInitiativeCount?: number | null;
 }
 
 export interface AchievementReportRow {
@@ -48,11 +56,18 @@ export interface AchievementReportRow {
   latestAward: string | null;
 }
 
+export interface ReportColumn {
+  key: string;
+  label: string;
+}
+
 export interface ReportResult {
   generatedAt: string;
   scope: ReportScope;
   period: { startDate: string; endDate: string };
   title: string;
+  subtitle: string;
+  columns: ReportColumn[];
   rows: ReportRow[];
   achievementRows: AchievementReportRow[];
   totals: {
@@ -69,6 +84,8 @@ export interface ReportContext {
   availableReports: ReportDefinition[];
   allowedClassIds: string[];
   allowedStudentIds: string[];
+  availableClasses: { id: string; name: string }[];
+  availableHabits: { id: string; name: string }[];
   schoolName: string;
   className?: string;
 }

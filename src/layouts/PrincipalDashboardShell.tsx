@@ -14,6 +14,7 @@ const navItems: NavItem[] = [
   { label: "7 Kebiasaan", to: "/dashboard/kepsek/habits", icon: BookOpen, permission: "read:habit_config" },
   { label: "Poin & EXP", to: "/dashboard/kepsek/points", icon: BarChart3, permission: "read:point_config" },
   { label: "Report Center", to: "/dashboard/kepsek/reports", icon: FileBarChart2, permission: "read:reports" },
+  { label: "Sertifikat", to: "/dashboard/kepsek/certificates", icon: ShieldCheck, permission: "manage:certificates" },
 ];
 
 export const PrincipalDashboardShell: React.FC = () => {

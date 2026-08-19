@@ -9,7 +9,7 @@ import { StudentManagementPage } from "../pages/StudentManagementPage";
 import { StudentAccountManagementPage } from "../pages/StudentAccountManagementPage";
 import { HabitConfigurationPage } from "../pages/HabitConfigurationPage";
 import { PointConfigurationPage } from "../pages/PointConfigurationPage";
-import { ReportCenterPage } from "../pages/ReportCenterPage";
+import { CertificateManagementPage } from "../pages/CertificateManagementPage";
 
 export const SuperAdminRoutes: React.FC = () => (
   <Routes>
@@ -23,8 +23,8 @@ export const SuperAdminRoutes: React.FC = () => (
         <Route path="/dashboard/admin/student-accounts" element={<ProtectedRoute requiredPermission="generate:student_qr" />}><Route index element={<StudentAccountManagementPage />} /></Route>
         <Route path="/dashboard/admin/habits" element={<ProtectedRoute requiredPermission="read:habit_config" />}><Route index element={<HabitConfigurationPage />} /></Route>
         <Route path="/dashboard/admin/points" element={<ProtectedRoute requiredPermission="read:point_config" />}><Route index element={<PointConfigurationPage />} /></Route>
-        <Route path="/dashboard/admin/reports" element={<ProtectedRoute requiredPermission="read:reports" />}><Route index element={<ReportCenterPage />} /></Route>
-      </Route>
+        <Route path="/dashboard/admin/certificates" element={<ProtectedRoute requiredPermission="manage:certificates" />}><Route index element={<CertificateManagementPage />} /></Route>
+        </Route>
     </Route>
   </Routes>
 );

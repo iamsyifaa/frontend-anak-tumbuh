@@ -1,29 +1,25 @@
 import React, { useEffect, useRef } from "react";
 import { AwardItem, StreakSummary } from "../../types/gamification";
-import { useNavigate } from "react-router-dom";
-import { BadgeItem, CertificateItem } from "../../types";
+import { BadgeItem } from "../../types";
 import {
   Trophy, Award, Lock, Sun, BookOpen, Sparkles, Flame, HeartHandshake,
-  FileText, Calendar, Eye, CheckCircle2, Medal, Clock3
+  Calendar, CheckCircle2, Medal, Clock3
 } from "lucide-react";
 
 interface PencapaianViewProps {
   badges: BadgeItem[];
   awards: AwardItem[];
-  certificates: CertificateItem[];
   streak: StreakSummary;
-  initialSection?: "badges" | "awards" | "certificates";
+  initialSection?: "badges" | "awards";
 }
 
-export const PencapaianView: React.FC<PencapaianViewProps> = ({ badges, awards, certificates, streak, initialSection }) => {
-  const navigate = useNavigate();
+export const PencapaianView: React.FC<PencapaianViewProps> = ({ badges, awards, streak, initialSection }) => {
   const badgeSectionRef = useRef<HTMLElement | null>(null);
   const awardSectionRef = useRef<HTMLElement | null>(null);
-  const certificateSectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!initialSection) return;
-    const target = initialSection === "badges" ? badgeSectionRef.current : initialSection === "awards" ? awardSectionRef.current : certificateSectionRef.current;
+    const target = initialSection === "badges" ? badgeSectionRef.current : awardSectionRef.current;
     const timer = window.setTimeout(() => target?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
     return () => window.clearTimeout(timer);
   }, [initialSection]);
@@ -50,7 +46,7 @@ export const PencapaianView: React.FC<PencapaianViewProps> = ({ badges, awards, 
             <span>Panggung Juara & Perkembangan Karakter</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950 font-heading">Pencapaianmu!</h2>
-          <p className="text-xs md:text-sm text-amber-950 font-bold leading-relaxed">Lihat konsistensi, lencana, penghargaan, dan sertifikat yang diberikan oleh sistem dan sekolah.</p>
+          <p className="text-xs md:text-sm text-amber-950 font-bold leading-relaxed">Lihat konsistensi, lencana, dan penghargaan yang diberikan oleh sistem dan sekolah.</p>
         </div>
         <div className="flex items-center gap-4 bg-white/40 backdrop-blur-md p-3 sm:p-4 rounded-3xl border-2 border-white/80 shadow-lg relative z-10">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white p-2 flex items-center justify-center shadow-md border-2 border-amber-300">
@@ -108,8 +104,6 @@ export const PencapaianView: React.FC<PencapaianViewProps> = ({ badges, awards, 
         {awards.length === 0 ? <EmptyState title="Belum ada penghargaan" description="Penghargaan akan ditampilkan sesuai kebiasaan dan periode yang diberikan sekolah." /> : <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{awards.map((award) => <article key={award.id} className="bg-white rounded-[2rem] p-6 border-4 border-white shadow-xl shadow-rose-100/60"><div className="flex items-start justify-between gap-4"><div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center"><Medal className="w-6 h-6" /></div><span className="text-xs font-black text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full">{award.period}</span></div><h4 className="font-extrabold text-slate-800 text-lg mt-4 font-heading">{award.title}</h4><p className="text-xs text-slate-600 mt-2 leading-relaxed">{award.description}</p><div className="mt-5 pt-4 border-t flex flex-wrap gap-2 text-xs font-bold text-slate-500"><span>Kebiasaan: {award.habitName}</span><span>•</span><span>{award.issuerName}</span></div></article>)}</div>}
       </section>
 
-      {/* Certificates */}
-      <section ref={certificateSectionRef} className="space-y-5 pt-2 scroll-mt-6"><div className="flex items-center justify-between"><h3 className="font-extrabold text-slate-800 text-lg md:text-xl flex items-center gap-2 font-heading"><FileText className="w-6 h-6 text-indigo-600" />Sertifikat & Piagam</h3><span className="text-xs text-indigo-700 bg-indigo-100 font-extrabold px-3 py-1 rounded-full">{certificates.length} dokumen</span></div>{certificates.length === 0 ? <EmptyState title="Belum ada sertifikat" description="Sertifikat akan muncul jika penghargaan terkait menghasilkan dokumen sertifikat." /> : <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{certificates.map((cert) => <div key={cert.id} className="bg-white rounded-[2rem] p-6 md:p-8 border-4 border-white shadow-xl shadow-sky-100/80"><div className="flex items-center justify-between"><span className="bg-sky-100 text-sky-800 text-xs font-black px-3 py-1 rounded-full border border-sky-200">{cert.period}</span><span className="text-xs font-mono font-bold text-slate-400">{cert.certificateNumber}</span></div><h4 className="font-extrabold text-slate-800 text-lg mt-4">{cert.title}</h4><p className="text-xs text-slate-600 font-semibold leading-relaxed mt-2">{cert.description}</p><div className="pt-4 mt-4 border-t-2 border-slate-100 flex items-center justify-between gap-4"><div className="text-xs text-slate-500 font-bold">Penerbit: <strong className="text-slate-800">{cert.issuerName}</strong></div><button onClick={() => navigate(`/dashboard/siswa/certificate/${cert.id}`)} className="px-5 py-2.5 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-2xl font-black text-xs shadow-md border-2 border-white flex items-center gap-1.5"><Eye className="w-4 h-4" />Buka PDF</button></div></div>)}</div>}</section>
     </div>
   );
 };

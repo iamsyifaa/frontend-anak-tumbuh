@@ -2,6 +2,7 @@ import { UserProfile } from "../types/auth";
 import { Student } from "../types/student";
 import { AccountGenerationRequest, BulkGenerationResult, GeneratedQrCredential } from "../types/studentAccount";
 import { studentService, STUDENT_PERMISSIONS } from "./studentService";
+import { schoolMasterService } from "./schoolMasterService";
 
 const wait = (ms = 320) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -57,12 +58,24 @@ export const studentAccountService = {
 
     const credentials: GeneratedQrCredential[] = [];
     const generated: Student[] = [];
+    const groups = (await studentService.listImportContext(user, request.schoolId)).groups;
 
     for (const student of toGenerate) {
       const token = randomToken(student.id);
       // Only the digest would be persisted by a real backend. The raw credential exists in this response only for the print session.
       await sha256(token);
-      credentials.push({ studentId: student.id, studentName: student.name, qrToken: token, generatedAt: new Date().toISOString() });
+      const group = groups.find((item) => item.id === student.classGroupId);
+      credentials.push({
+        studentId: student.id,
+        studentName: student.name,
+        schoolId: student.schoolId,
+        academicYearId: student.academicYearId,
+        classGroupId: student.classGroupId,
+        levelName: group?.levelName ?? "—",
+        rombelName: group?.rombelName ?? "—",
+        qrToken: token,
+        generatedAt: new Date().toISOString(),
+      });
       generated.push({ ...student, accountStatus: "generated", qrStatus: "active" });
     }
 

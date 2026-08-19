@@ -179,7 +179,7 @@ export const PrincipalDashboardPage: React.FC = () => {
       description: "Laporan siswa, rombel, sekolah, dan pencapaian.",
       icon: FileBarChart2,
       permission: "read:reports",
-      to: "/dashboard/reports",
+      to: "/dashboard/kepsek/reports",
     },
   ];
 
@@ -259,7 +259,7 @@ export const PrincipalDashboardPage: React.FC = () => {
           <p className="mt-1 text-xs text-slate-500">Struktur tahun ajaran aktif</p>
         </button>
 
-        <button type="button" onClick={() => navigate("/dashboard/reports")} className="rounded-3xl bg-white p-5 text-left shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md">
+        <button type="button" onClick={() => navigate("/dashboard/kepsek/reports")} className="rounded-3xl bg-white p-5 text-left shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md">
           <div className="grid h-11 w-11 place-items-center rounded-2xl" style={{ background: coolBlue, color: navy }}><BarChart3 className="h-5 w-5" /></div>
           <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-slate-400">Aktivitas bulan ini</p>
           <p className="mt-1 text-2xl font-black text-slate-900">{activityAverage}%</p>
@@ -274,7 +274,7 @@ export const PrincipalDashboardPage: React.FC = () => {
               <p className="text-[10px] font-black uppercase tracking-[.16em]" style={{ color: navy }}>Ringkasan sekolah</p>
               <h2 className="mt-1 text-xl font-black text-slate-900">Kondisi sekolah saat ini</h2>
             </div>
-            <button type="button" onClick={() => navigate("/dashboard/reports")} className="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-extrabold" style={{ background: coolBlue, color: navy }}>
+            <button type="button" onClick={() => navigate("/dashboard/kepsek/reports")} className="inline-flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-extrabold" style={{ background: coolBlue, color: navy }}>
               Lihat laporan <ArrowRight className="h-4 w-4" />
             </button>
           </div>

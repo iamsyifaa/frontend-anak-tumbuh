@@ -5,7 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
-  FileBarChart2,
+  
   GraduationCap,
   LayoutDashboard,
   LogOut,
@@ -35,7 +35,6 @@ const navItems: NavItem[] = [
   { label: "Akun & QR Siswa", to: "/dashboard/admin/student-accounts", icon: ShieldCheck, permission: "generate:student_qr", roles: ["super_admin", "kepala_sekolah"] },
   { label: "7 Kebiasaan", to: "/dashboard/admin/habits", icon: BookOpen, permission: "read:habit_config", roles: ["super_admin", "kepala_sekolah"] },
   { label: "Poin & EXP", to: "/dashboard/admin/points", icon: BarChart3, permission: "read:point_config", roles: ["super_admin", "kepala_sekolah"] },
-  { label: "Report Center", to: "/dashboard/reports", icon: FileBarChart2, permission: "read:reports", roles: ["super_admin", "kepala_sekolah", "wali_kelas"] },
 ];
 
 export const AdminDashboardShell: React.FC = () => {
@@ -148,7 +147,6 @@ export const AdminDashboardShell: React.FC = () => {
               <p className="text-[10px] text-slate-400">{user?.username}</p>
             </div>
             <button type="button" onClick={() => setMobileOpen(true)} className="grid h-10 w-10 place-items-center rounded-full bg-[#A4C1FD] text-[#203A5B] font-black lg:hidden" aria-label="Profil">{user?.name?.slice(0, 1) ?? "A"}</button>
-            <button type="button" onClick={() => navigate("/dashboard/reports")} className="hidden rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-50 sm:block" title="Report Center"><FileBarChart2 className="h-5 w-5" /></button>
             <button type="button" onClick={() => navigate(user?.role === "super_admin" ? "/dashboard/admin" : user?.role === "kepala_sekolah" ? "/dashboard/kepsek" : "/dashboard/walikelas")} className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-50" title="Beranda"><LayoutDashboard className="h-5 w-5" /></button>
           </div>
         </header>

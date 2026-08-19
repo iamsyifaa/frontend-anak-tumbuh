@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { Award, BarChart3, BookOpenCheck, ChevronRight, Clock3, FileText, Flame, Medal, RefreshCw, Star, Trophy, Zap } from "lucide-react";
 import { StudentDashboardAggregate as Aggregate } from "../../types/studentDashboard";
-import { PdfModal } from "../views/PdfModal";
-import { CertificateItem } from "../../types";
 
-type AchievementSection = "badges" | "awards" | "certificates";
+type AchievementSection = "badges" | "awards";
 
 interface Props {
   data: Aggregate | null;
@@ -16,8 +14,6 @@ interface Props {
 }
 
 export const StudentDashboardAggregate: React.FC<Props> = ({ data, loading, error, onRetry, onOpenRanking, onOpenAchievements }) => {
-  const [selectedCertificate, setSelectedCertificate] = useState<CertificateItem | null>(null);
-
   if (loading) return <DashboardSkeleton />;
   if (error || !data) return <DashboardError message={error ?? "Dashboard belum tersedia."} onRetry={onRetry} />;
   if (data.student.method === "MANUAL") return <section className="rounded-[2rem] border-2 border-amber-200 bg-amber-50 p-6 md:p-8"><div className="flex gap-4 items-start"><div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0"><BookOpenCheck /></div><div><h2 className="text-xl font-black text-slate-800">Dashboard siswa Manual</h2><p className="mt-1 text-sm text-slate-600 font-semibold">Data siswa tetap tersedia di aplikasi, tetapi pengisian 7 Kebiasaan dilakukan melalui buku fisik. Dashboard tidak menyediakan jalur rekap buku Manual.</p></div></div></section>;
@@ -68,18 +64,8 @@ export const StudentDashboardAggregate: React.FC<Props> = ({ data, loading, erro
     <section className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-5 anim-stagger-5">
       <SummaryPanel compact title="Badge" icon={<Award className="w-5 h-5 text-amber-500" />} value={`${unlockedBadges}/${data.achievements.badges.length}`} description="badge terbuka" onClick={() => onOpenAchievements("badges")} />
       <SummaryPanel compact title="Penghargaan" icon={<Medal className="w-5 h-5 text-rose-500" />} value={`${data.achievements.awards.length}`} description="penghargaan diterima" onClick={() => onOpenAchievements("awards")} />
-      <SummaryPanel compact title="Sertifikat" icon={<FileText className="w-5 h-5 text-sky-500" />} value={`${data.achievements.certificates.length}`} description="dokumen tersedia" onClick={() => onOpenAchievements("certificates")} />
     </section>
 
-    {data.achievements.certificates.length > 0 && <section className="bg-white rounded-[2rem] p-5 md:p-7 shadow-xl shadow-sky-100/50 border border-white anim-stagger-6">
-      <div className="flex items-center justify-between gap-3 mb-5"><div><p className="text-xs font-black uppercase tracking-wider text-sky-600">Dokumen</p><h2 className="text-xl font-black text-slate-800">Sertifikat Terbaru</h2></div><FileText className="text-sky-500" /></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{data.achievements.certificates.slice(0, 2).map((certificate) => <article key={certificate.id} className="rounded-2xl border border-slate-200 p-4 flex items-center justify-between gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-sky-200">
-        <div><h3 className="font-black text-slate-800">{certificate.title}</h3><p className="text-xs text-slate-500 mt-1">{certificate.period} · {certificate.issueDate}</p></div>
-        <button onClick={() => setSelectedCertificate(certificate)} className="shrink-0 rounded-xl bg-sky-50 text-sky-700 px-3 py-2 text-xs font-black hover:bg-sky-100">Preview</button>
-      </article>)}</div>
-    </section>}
-
-    <PdfModal certificate={selectedCertificate} onClose={() => setSelectedCertificate(null)} />
   </div>;
 };
 

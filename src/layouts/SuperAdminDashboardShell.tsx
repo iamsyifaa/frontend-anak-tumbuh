@@ -4,7 +4,6 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
-  FileBarChart2,
   GraduationCap,
   LayoutDashboard,
   LogOut,
@@ -62,10 +61,10 @@ const navItems: NavItem[] = [
     permission: "read:point_config",
   },
   {
-    label: "Report Center",
-    to: "/dashboard/admin/reports",
-    icon: FileBarChart2,
-    permission: "read:reports",
+    label: "Sertifikat",
+    to: "/dashboard/admin/certificates",
+    icon: ShieldCheck,
+    permission: "manage:certificates",
   },
 ];
 

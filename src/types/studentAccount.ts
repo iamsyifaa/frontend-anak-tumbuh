@@ -13,8 +13,19 @@ export interface AccountGenerationRequest {
 export interface GeneratedQrCredential {
   studentId: string;
   studentName: string;
+  schoolId: string;
+  academicYearId: string;
+  classGroupId: string;
+  levelName: string;
+  rombelName: string;
   qrToken: string;
   generatedAt: string;
+}
+
+export interface QrDownloadFilter {
+  academicYearId?: string;
+  levelName?: string;
+  classGroupId?: string;
 }
 
 export interface BulkGenerationResult {

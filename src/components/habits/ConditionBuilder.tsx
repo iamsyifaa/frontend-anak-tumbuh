@@ -28,7 +28,7 @@ export const ConditionBuilder: React.FC<Props> = ({ indicators, target, onSave, 
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-violet-600 shadow-sm"><GitBranch className="h-4 w-4" /></div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-black uppercase tracking-wide text-violet-700">Conditional indicator</p>
-          <p className="mt-1 text-xs text-slate-600">Indikator ini hanya tampil jika jawaban indikator sebelumnya memenuhi kondisi berikut.</p>
+          <p className="mt-1 text-xs text-slate-600">Indikator ini hanya tampil jika jawaban indikator sebelumnya memenuhi kondisi berikut. Jika jawabannya berbeda, indikator target disembunyikan.</p>
           <div className="mt-3 grid gap-2 md:grid-cols-[1fr_auto_1fr_auto] md:items-end">
             <label className="text-xs font-bold text-slate-600">Jika indikator
               <select value={sourceId} onChange={(e) => { setSourceId(e.target.value); setOptionId(""); }} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800">
@@ -45,7 +45,7 @@ export const ConditionBuilder: React.FC<Props> = ({ indicators, target, onSave, 
             </label>
             <button type="button" disabled={!sourceId || !optionId} onClick={() => onSave(sourceId, optionId)} className="rounded-xl bg-violet-600 px-3 py-2 text-xs font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-40">Simpan kondisi</button>
           </div>
-          {condition && <button type="button" onClick={onRemove} className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-rose-600 hover:text-rose-700"><Trash2 className="h-3.5 w-3.5" /> Hapus kondisi</button>}
+          {condition && <div className="mt-3 flex flex-wrap items-center gap-2">{selectedSource && <span className="rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-violet-700 ring-1 ring-violet-100">Tampil jika “{selectedSource.name}” = “{selectedSource.options.find((option) => option.id === optionId)?.label ?? "pilihan kondisi"}”</span>}<button type="button" onClick={onRemove} className="inline-flex items-center gap-1 text-xs font-bold text-rose-600 hover:text-rose-700"><Trash2 className="h-3.5 w-3.5" /> Hapus kondisi</button></div>}
         </div>
       </div>
     </div>

@@ -197,6 +197,8 @@ export const IsiKebiasaanView: React.FC<IsiKebiasaanViewProps> = () => {
 
           {locked && <div className="mt-6 p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800"><div className="flex gap-3 items-start"><CheckCircle2 className="w-6 h-6 flex-shrink-0" /><div><p className="font-black">Pengisian terkunci</p><p className="text-sm mt-1">Jawaban sudah berhasil dikirim. Form ini hanya dapat dibaca dan tidak dapat diubah.</p></div></div></div>}
 
+          {!locked && <div className="mt-6 flex gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-amber-900"><AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /><div><p className="text-sm font-black">Isi dengan jujur dan sesuai keadaan sebenarnya.</p><p className="mt-1 text-xs font-semibold leading-relaxed text-amber-800">Jawaban digunakan sebagai catatan perkembangan kebiasaan. Jangan memilih jawaban hanya untuk mendapatkan Poin atau EXP yang lebih tinggi.</p></div></div>}
+
           <form onSubmit={handleSubmit} className="space-y-7 mt-7">
             {visibleIndicators.map((indicator, index) => <fieldset key={indicator.id} disabled={locked || submitting} className="space-y-3">
               <legend className="text-sm font-black uppercase tracking-wider text-slate-700">{index + 1}. {indicator.name} {indicator.required && <span className="text-rose-500">*</span>}</legend>
