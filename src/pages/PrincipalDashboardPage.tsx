@@ -134,7 +134,7 @@ export const PrincipalDashboardPage: React.FC = () => {
       description: "Tahun ajaran, tingkat, rombel, dan Wali Kelas.",
       icon: Building2,
       permission: "read:school_master",
-      to: "/dashboard/admin/schools",
+      to: "/dashboard/kepsek/schools",
     },
     {
       label: "Guru & Wali Kelas",
@@ -144,8 +144,8 @@ export const PrincipalDashboardPage: React.FC = () => {
       to: "/dashboard/kepsek/teachers",
     },
     {
-      label: "Siswa & Import",
-      description: "Kelola siswa dan import data dengan validasi.",
+      label: "Siswa, Penempatan & Import",
+      description: "Kelola siswa, import, serta penempatan/kenaikan sesuai kewenangan.",
       icon: GraduationCap,
       permission: "read:students",
       to: "/dashboard/kepsek/students",
@@ -245,14 +245,14 @@ export const PrincipalDashboardPage: React.FC = () => {
           <p className="mt-1 text-xs text-slate-500">{digitalStudents} Digital • {manualStudents} Manual</p>
         </button>
 
-        <button type="button" onClick={() => navigate("/dashboard/admin/teachers")} className="rounded-3xl bg-white p-5 text-left shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md">
+        <button type="button" onClick={() => navigate("/dashboard/kepsek/teachers")} className="rounded-3xl bg-white p-5 text-left shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md">
           <div className="grid h-11 w-11 place-items-center rounded-2xl" style={{ background: coolBlue, color: navy }}><Users className="h-5 w-5" /></div>
           <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-slate-400">Guru</p>
           <p className="mt-1 text-2xl font-black text-slate-900">{formatNumber(teachers.length)}</p>
           <p className="mt-1 text-xs text-slate-500">Data dalam sekolah ini</p>
         </button>
 
-        <button type="button" onClick={() => navigate("/dashboard/admin/schools")} className="rounded-3xl bg-white p-5 text-left shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md">
+        <button type="button" onClick={() => navigate("/dashboard/kepsek/schools")} className="rounded-3xl bg-white p-5 text-left shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-md">
           <div className="grid h-11 w-11 place-items-center rounded-2xl" style={{ background: coolBlue, color: navy }}><ClipboardList className="h-5 w-5" /></div>
           <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-slate-400">Rombel aktif</p>
           <p className="mt-1 text-2xl font-black text-slate-900">{formatNumber(activeClasses.length)}</p>

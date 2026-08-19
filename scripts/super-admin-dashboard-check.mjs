@@ -7,11 +7,11 @@ const service = fs.readFileSync("src/services/superAdminDashboardService.ts", "u
 
 assert.match(app, /path="\/dashboard\/admin" element={<SuperAdminDashboardPage \/>}/);
 assert.match(app, /path="\/dashboard\/admin\/schools" element={<SchoolMasterPage \/>}/);
-assert.match(page, /user\?\.role !== "super_admin"/);
+assert.match(page, /user\.role !== "super_admin"/);
 assert.match(service, /user\.role !== "super_admin"/);
-assert.match(page, /Siswa Manual tetap menjadi data siswa/);
+assert.match(page, /Manual adalah metode pengisian siswa/);
 assert.doesNotMatch(page, /Input Rekap Manual|Isi Massal|Salin Data Hari Sebelumnya|Import Rekap Buku/);
 assert.match(service, /student\.method === "DIGITAL"/);
-assert.match(service, /student\.method === "MANUAL"/);
+assert.match(service, /manualCount: students\.length - digitalCount/);
 
 console.log("Super Admin dashboard contract checks: PASS");

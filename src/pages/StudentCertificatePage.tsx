@@ -42,7 +42,7 @@ export const StudentCertificatePage: React.FC = () => {
           <div className="space-y-1.5">
             <p className="text-xs text-slate-600 font-bold">Diberikan dengan penuh apresiasi kepada:</p>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-sky-700 border-b-4 border-amber-400 inline-block pb-1">{user?.name ?? "Siswa"}</h2>
-            <p className="text-xs text-slate-600 font-bold">Kelas {user?.className ?? "-"}</p>
+            <p className="text-xs text-slate-600 font-bold">Kelas {user?.classId ?? "-"}</p>
           </div>
           <p className="text-xs sm:text-sm text-slate-700 leading-relaxed max-w-2xl mx-auto italic font-semibold">"{certificate.description}"</p>
           <div className="pt-6 border-t-2 border-slate-200 grid grid-cols-2 gap-4 text-xs">

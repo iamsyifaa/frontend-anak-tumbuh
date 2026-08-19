@@ -32,7 +32,7 @@ const details: Record<string, ClassMonitoringDetail> = {
       { id: "h1", name: "Bangun Pagi", status: "done", indicatorLabel: "Bangun sesuai target" },
       { id: "h2", name: "Beribadah", status: "done", indicatorLabel: "Selesai" },
       { id: "h3", name: "Berolahraga", status: "done", indicatorLabel: "Selesai" },
-      { id: "h4", name: "Makan Sehat", status: "done", indicatorLabel: "Selesai" },
+      { id: "h4", name: "Makan Sehat dan Bergizi", status: "done", indicatorLabel: "Sarapan cukup" },
       { id: "h5", name: "Gemar Belajar", status: "done", indicatorLabel: "Selesai" },
       { id: "h6", name: "Bermasyarakat", status: "done", indicatorLabel: "Selesai" },
       { id: "h7", name: "Tidur Cepat", status: "done", indicatorLabel: "Selesai" },

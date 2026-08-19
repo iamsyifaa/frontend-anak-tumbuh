@@ -17,6 +17,8 @@ const MOCK_USERS: Record<string, UserProfile> = {
     schoolId: "sch-101",
     permissions: [
       "read:school_analytics",
+      "read:teachers",
+      "write:teachers",
       "read:class_reports",
       "read:school_master",
       "write:school_master",
@@ -29,6 +31,8 @@ const MOCK_USERS: Record<string, UserProfile> = {
       "read:point_config",
       "manage:point_config",
       "read:student_gamification",
+      "read:reports",
+      "export:reports",
     ],
   },
   walikelas: {
@@ -38,7 +42,29 @@ const MOCK_USERS: Record<string, UserProfile> = {
     role: "wali_kelas",
     schoolId: "sch-101",
     classId: "cls-5a",
-    permissions: ["read:student_habits", "write:teacher_notes", "read:class_reports", "export:class_monitoring"],
+    permissions: ["read:student_habits", "write:teacher_notes", "read:reports", "export:reports"],
+  },
+  siswa_manual: {
+    id: "u-5",
+    name: "Bima Pratama",
+    username: "siswa_manual",
+    role: "siswa",
+    schoolId: "sch-101",
+    classId: "cls-5a",
+    permissions: ["read:own_habits", "read:reports", "export:reports"],
+    method: "MANUAL",
+  },
+  siswa_citra: {
+    id: "u-6",
+    name: "Citra Lestari",
+    username: "siswa_citra",
+    role: "siswa",
+    schoolId: "sch-101",
+    classId: "cls-8b",
+    permissions: ["read:own_habits", "write:own_habits", "read:reports", "export:reports"],
+    method: "DIGITAL",
+    gender: "P",
+    avatarUrl: "/image/perempuan.png",
   },
   siswa: {
     id: "u-4",
@@ -47,9 +73,18 @@ const MOCK_USERS: Record<string, UserProfile> = {
     role: "siswa",
     schoolId: "sch-101",
     classId: "cls-5a",
-    permissions: ["read:own_habits", "write:own_habits"],
+    permissions: ["read:own_habits", "write:own_habits", "read:reports", "export:reports"],
     method: "DIGITAL",
+    gender: "L",
+    avatarUrl: "/image/laki_laki.png",
   },
+};
+
+// Development-only credentials. Production authentication must be delegated to Laravel.
+const MOCK_PASSWORDS: Record<string, string> = {
+  admin: "admin123",
+  kepsek: "kepsek123",
+  walikelas: "walikelas123",
 };
 
 export const authService = {
@@ -57,9 +92,17 @@ export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     await new Promise((resolve) => setTimeout(resolve, 800)); // Simulasi latency jaringan
 
-    const user = MOCK_USERS[credentials.username.toLowerCase()];
-    if (!user) {
-      throw new Error("Username atau password tidak ditemukan.");
+    const username = credentials.username.trim().toLowerCase();
+    const user = MOCK_USERS[username];
+    const expectedPassword = MOCK_PASSWORDS[username];
+
+    // Username/password login is intentionally limited to administrative roles.
+    if (!user || !expectedPassword || user.role === "siswa") {
+      throw new Error("Akun administrasi tidak ditemukan.");
+    }
+
+    if (!credentials.password || credentials.password !== expectedPassword) {
+      throw new Error("Username atau password salah.");
     }
 
     return {
@@ -83,15 +126,14 @@ export const authService = {
       // The scanned value can be a raw credential rather than a URL.
     }
 
-    const isMockCredential =
-      qrToken === "mock-valid-qr-token-siswa" ||
-      /^mock-student-qr-stu-(001|003)-[a-f0-9]+$/.test(qrToken);
+    const credentialMatch = qrToken.match(/^mock-student-qr-(stu-[a-z0-9-]+)-[a-f0-9]+$/i);
+    const studentId = credentialMatch?.[1]?.toLowerCase();
 
-    if (!isMockCredential) {
+    if (qrToken !== "mock-valid-qr-token-siswa" && !credentialMatch) {
       throw new Error("Kode QR tidak valid atau sudah tidak aktif.");
     }
 
-    const studentUser = MOCK_USERS["siswa"];
+    const studentUser = studentId === "stu-003" ? MOCK_USERS["siswa_citra"] : MOCK_USERS["siswa"];
 
     return {
       token: `mock-qr-token-${studentUser.id}-${Date.now()}`,
@@ -108,6 +150,8 @@ export const authService = {
     if (token.includes("u-1")) return MOCK_USERS["admin"];
     if (token.includes("u-2")) return MOCK_USERS["kepsek"];
     if (token.includes("u-3")) return MOCK_USERS["walikelas"];
+    if (token.includes("u-5")) return MOCK_USERS["siswa_manual"];
+    if (token.includes("u-6")) return MOCK_USERS["siswa_citra"];
     return MOCK_USERS["siswa"];
   },
 };

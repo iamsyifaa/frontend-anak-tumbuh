@@ -14,7 +14,7 @@ import { UserRole } from "../types/auth";
 const ROLE_REDIRECTS: Record<Exclude<UserRole, "siswa">, string> = {
   super_admin: "/dashboard/admin",
   kepala_sekolah: "/dashboard/kepsek",
-  wali_kelas: "/dashboard/wali-kelas",
+  wali_kelas: "/dashboard/walikelas",
 };
 
 export const AdminLoginPage: React.FC = () => {
