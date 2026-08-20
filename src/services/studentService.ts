@@ -230,6 +230,27 @@ export const studentService = {
     return { updated: selectedStudents.length };
   },
 
+  async graduateStudents(user: UserProfile, schoolId: string, input: { studentIds: string[] }): Promise<{ updated: number }> {
+    await wait();
+    assertPermission(user, STUDENT_PERMISSIONS.write);
+    assertSchoolScope(user, schoolId);
+    if (!input.studentIds.length) throw new Error("Pilih minimal satu siswa untuk diluluskan.");
+    const selected = new Set(input.studentIds);
+    const selectedStudents = students.filter((student) => selected.has(student.id) && student.schoolId === schoolId && student.status === "active");
+    if (selectedStudents.length !== input.studentIds.length) throw new Error("Ada siswa yang tidak berada dalam scope sekolah atau sudah tidak aktif.");
+    const recordedAt = new Date().toISOString();
+    students = students.map((student) => selected.has(student.id) ? ({
+      ...student,
+      status: "graduated" as StudentStatus,
+      qrStatus: "revoked" as const,
+      enrollmentHistory: [
+        ...(student.enrollmentHistory ?? []),
+        { academicYearId: student.academicYearId, classGroupId: student.classGroupId, status: student.status, recordedAt },
+      ],
+    }) : student);
+    return { updated: selectedStudents.length };
+  },
+
   async generateQr(user: UserProfile, studentId: string): Promise<Student> {
     await wait();
     assertPermission(user, STUDENT_PERMISSIONS.generateQr);

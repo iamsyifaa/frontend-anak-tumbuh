@@ -29,13 +29,13 @@ const details: Record<string, ClassMonitoringDetail> = {
   "stu-001": {
     ...students[0],
     habits: [
-      { id: "h1", name: "Bangun Pagi", status: "done", indicatorLabel: "Bangun sesuai target" },
-      { id: "h2", name: "Beribadah", status: "done", indicatorLabel: "Selesai" },
-      { id: "h3", name: "Berolahraga", status: "done", indicatorLabel: "Selesai" },
-      { id: "h4", name: "Makan Sehat dan Bergizi", status: "done", indicatorLabel: "Sarapan cukup" },
-      { id: "h5", name: "Gemar Belajar", status: "done", indicatorLabel: "Selesai" },
-      { id: "h6", name: "Bermasyarakat", status: "done", indicatorLabel: "Selesai" },
-      { id: "h7", name: "Tidur Cepat", status: "done", indicatorLabel: "Selesai" },
+      { id: "h1", name: "Bangun Pagi", status: "done", indicatorLabel: "Bangun sesuai target", description: "Bangun pukul 05.00 dan merapikan tempat tidur.", initiative: "Sadar sendiri" },
+      { id: "h2", name: "Beribadah", status: "done", indicatorLabel: "Selesai", description: "Melaksanakan ibadah pagi sebelum berangkat sekolah.", initiative: "Sadar sendiri" },
+      { id: "h3", name: "Berolahraga", status: "done", indicatorLabel: "Selesai", description: "Berolahraga ringan selama 30 menit.", initiative: "Disuruh" },
+      { id: "h4", name: "Makan Sehat dan Bergizi", status: "done", indicatorLabel: "Sarapan cukup", description: "Sarapan dengan nasi, lauk, sayur, dan buah.", initiative: "Sadar sendiri" },
+      { id: "h5", name: "Gemar Belajar", status: "done", indicatorLabel: "Selesai", description: "Belajar mandiri selama 45 menit di rumah.", initiative: "Sadar sendiri" },
+      { id: "h6", name: "Bermasyarakat", status: "done", indicatorLabel: "Selesai", description: "Membantu orang tua merapikan halaman rumah.", initiative: "Disuruh" },
+      { id: "h7", name: "Tidur Cepat", status: "done", indicatorLabel: "Selesai", description: "Tidur pukul 20.30 setelah menyelesaikan rutinitas malam.", initiative: "Sadar sendiri" },
     ],
     weeklyActivity: [
       { date: "2026-08-09", activityPercent: 80 }, { date: "2026-08-10", activityPercent: 100 },

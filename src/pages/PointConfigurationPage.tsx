@@ -12,7 +12,6 @@ export const PointConfigurationPage: React.FC = () => {
   const canWrite = !!user && (user.role === "super_admin" || hasPermission(POINT_CONFIG_PERMISSIONS.write));
   const schoolId = user?.schoolId ?? "sch-101";
   const [config, setConfig] = useState<PointConfiguration | null>(null);
-  const [bonus, setBonus] = useState(0);
   const [levels, setLevels] = useState<LevelThreshold[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,13 +22,12 @@ export const PointConfigurationPage: React.FC = () => {
   const load = useCallback(async () => {
     if (!user || !canRead) { setLoading(false); return; }
     setLoading(true); setError("");
-    try { const result = await pointConfigurationService.getConfiguration(user, schoolId); setConfig(result); setBonus(result.initiativeBonusPoints); setLevels(result.levelThresholds); }
+    try { const result = await pointConfigurationService.getConfiguration(user, schoolId); setConfig(result); setLevels(result.levelThresholds); }
     catch (err) { setError(err instanceof Error ? err.message : "Gagal memuat konfigurasi Poin/EXP."); }
     finally { setLoading(false); }
   }, [canRead, schoolId, user]);
   useEffect(() => { void load(); }, [load]);
 
-  const saveBonus = async () => { if (!user || !canWrite) return; setSaving(true); setError(""); try { const result = await pointConfigurationService.updateInitiativeBonus(user, schoolId, bonus); setConfig(result); setNotice("Bonus inisiatif tersimpan sebagai draft."); } catch (err) { setError(err instanceof Error ? err.message : "Gagal menyimpan bonus."); } finally { setSaving(false); } };
   const saveLevels = async () => { if (!user || !canWrite) return; setSaving(true); setError(""); try { const result = await pointConfigurationService.saveLevelThresholds(user, schoolId, levels); setConfig(result); setNotice("Threshold level tersimpan sebagai draft."); } catch (err) { setError(err instanceof Error ? err.message : "Gagal menyimpan threshold."); } finally { setSaving(false); } };
   const publish = async () => { if (!user || !canWrite) return; setSaving(true); setError(""); try { const result = await pointConfigurationService.publish(user, schoolId); setConfig(result); setConfirmOpen(false); setNotice(`Konfigurasi v${result.version} berhasil dipublish.`); } catch (err) { setError(err instanceof Error ? err.message : "Gagal publish konfigurasi."); } finally { setSaving(false); } };
 
@@ -45,8 +43,7 @@ export const PointConfigurationPage: React.FC = () => {
     {error && <div className="flex gap-3 rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-700"><AlertCircle className="h-5 w-5 shrink-0" /><span>{error}</span></div>}
     {notice && <div className="flex gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold text-emerald-700"><CheckCircle2 className="h-5 w-5" />{notice}</div>}
 
-    <div className="grid gap-5 lg:grid-cols-2">
-      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="text-base font-black text-slate-900">Bonus Inisiatif</h2><p className="mt-1 text-xs leading-relaxed text-slate-500">Sadar sendiri dapat memberi bonus Poin. Disuruh tidak memberikan bonus inisiatif. Nilai akhir tetap diproses backend.</p><label className="mt-5 block text-xs font-extrabold uppercase tracking-wide text-slate-500">Bonus Poin</label><input type="number" min="0" step="1" value={bonus} disabled={!canWrite} onChange={(e) => setBonus(Number(e.target.value))} className={inputClass} /><button disabled={!canWrite || saving} onClick={() => void saveBonus()} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-extrabold text-white disabled:opacity-40"><Save className="h-4 w-4" /> Simpan bonus</button></section>
+    <div className="grid gap-5 lg:grid-cols-1">
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-start gap-3"><Info className="mt-0.5 h-5 w-5 text-sky-500" /><div><h2 className="text-base font-black text-slate-900">Aturan sistem</h2><p className="mt-1 text-xs leading-relaxed text-slate-500">Ranking mengambil nilai dari transaksi Poin. Level ditentukan dari total EXP. Perubahan threshold tidak boleh mengubah histori transaksi.</p></div></div></section>
     </div>
 

@@ -1,4 +1,5 @@
 import { AuthResponse, LoginCredentials, UserProfile } from "../types/auth";
+import { findMockTeacherCredential } from "./teacherService";
 
 // Mock DB User untuk pengujian
 const MOCK_USERS: Record<string, UserProfile> = {
@@ -19,6 +20,7 @@ const MOCK_USERS: Record<string, UserProfile> = {
       "read:school_analytics",
       "read:teachers",
       "write:teachers",
+      "import:teachers",
       "read:class_reports",
       "read:school_master",
       "write:school_master",
@@ -43,7 +45,7 @@ const MOCK_USERS: Record<string, UserProfile> = {
     role: "wali_kelas",
     schoolId: "sch-101",
     classId: "cls-5a",
-    permissions: ["read:student_habits", "write:teacher_notes", "read:reports", "export:reports"],
+    permissions: ["read:student_habits", "write:teacher_notes", "read:reports", "export:reports", "read:certificates"],
   },
   siswa_manual: {
     id: "u-5",
@@ -88,6 +90,8 @@ const MOCK_PASSWORDS: Record<string, string> = {
   walikelas: "walikelas123",
 };
 
+const MOCK_SESSIONS = new Map<string, UserProfile>();
+
 export const authService = {
   // Login dengan Username/Password
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
@@ -97,19 +101,32 @@ export const authService = {
     const user = MOCK_USERS[username];
     const expectedPassword = MOCK_PASSWORDS[username];
 
-    // Username/password login is intentionally limited to administrative roles.
-    if (!user || !expectedPassword || user.role === "siswa") {
-      throw new Error("Akun administrasi tidak ditemukan.");
+    if (user && expectedPassword) {
+      if (user.role === "siswa") throw new Error("Akun administrasi tidak ditemukan.");
+      if (!credentials.password || credentials.password !== expectedPassword) throw new Error("Username atau password salah.");
+      const token = `mock-jwt-token-${user.id}-${Date.now()}`;
+      MOCK_SESSIONS.set(token, user);
+      return { token, user };
     }
 
-    if (!credentials.password || credentials.password !== expectedPassword) {
-      throw new Error("Username atau password salah.");
+    const importedTeacher = findMockTeacherCredential(username);
+    if (importedTeacher) {
+      if (!credentials.password || credentials.password !== importedTeacher.password) throw new Error("Username atau password salah.");
+      const importedUser: UserProfile = {
+        id: importedTeacher.teacher.id,
+        name: importedTeacher.teacher.name,
+        username: importedTeacher.teacher.username,
+        role: "wali_kelas",
+        schoolId: importedTeacher.teacher.schoolId,
+        classId: importedTeacher.teacher.classGroupId,
+        permissions: ["read:student_habits", "write:teacher_notes", "read:reports", "export:reports", "read:certificates"],
+      };
+      const token = `mock-jwt-token-${importedUser.id}-${Date.now()}`;
+      MOCK_SESSIONS.set(token, importedUser);
+      return { token, user: importedUser };
     }
 
-    return {
-      token: `mock-jwt-token-${user.id}-${Date.now()}`,
-      user,
-    };
+    throw new Error("Akun administrasi tidak ditemukan.");
   },
 
   // Login via QR Token Unik Siswa (Satu Scan)
@@ -136,10 +153,9 @@ export const authService = {
 
     const studentUser = studentId === "stu-003" ? MOCK_USERS["siswa_citra"] : MOCK_USERS["siswa"];
 
-    return {
-      token: `mock-qr-token-${studentUser.id}-${Date.now()}`,
-      user: studentUser,
-    };
+    const token = `mock-qr-token-${studentUser.id}-${Date.now()}`;
+    MOCK_SESSIONS.set(token, studentUser);
+    return { token, user: studentUser };
   },
 
   // Verifikasi Session/Me
@@ -147,6 +163,8 @@ export const authService = {
     await new Promise((resolve) => setTimeout(resolve, 400));
 
     if (!token) throw new Error("Unauthenticated");
+    const sessionUser = MOCK_SESSIONS.get(token);
+    if (sessionUser) return sessionUser;
 
     if (token.includes("u-1")) return MOCK_USERS["admin"];
     if (token.includes("u-2")) return MOCK_USERS["kepsek"];

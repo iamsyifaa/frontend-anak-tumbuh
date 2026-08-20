@@ -22,7 +22,7 @@ export const ReportCenterPage: React.FC<ReportCenterPageProps> = ({ variant = "d
   const [availableScopes, setAvailableScopes] = useState<ReportScope[]>([]);
   const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
   const [habits, setHabits] = useState<{ id: string; name: string }[]>([]);
-  const [filter, setFilter] = useState<ReportFilter>({ scope: "student", periodPreset: "this_month", startDate: iso(monthStart), endDate: iso(today), initiative: "ALL" });
+  const [filter, setFilter] = useState<ReportFilter>({ scope: "student", periodPreset: "this_month", startDate: iso(monthStart), endDate: iso(today), initiatives: ["Sadar sendiri", "Disuruh"] });
 
   useEffect(() => {
     if (!user) return;
@@ -32,7 +32,7 @@ export const ReportCenterPage: React.FC<ReportCenterPageProps> = ({ variant = "d
       setAvailableScopes(scopes);
       setClasses(ctx.availableClasses);
       setHabits(ctx.availableHabits);
-      setFilter((current) => ({ ...current, scope: scopes[0] ?? "student", classId: user.role === "kepala_sekolah" ? ctx.availableClasses[0]?.id : undefined, habitId: ctx.availableHabits[0]?.id }));
+      setFilter((current) => ({ ...current, scope: scopes.includes("student") ? "student" : (scopes[0] ?? "student"), classId: user.role === "kepala_sekolah" ? ctx.availableClasses[0]?.id : undefined, habitId: ctx.availableHabits[0]?.id, initiatives: ["Sadar sendiri", "Disuruh"] }));
     }).catch((err) => setError(err instanceof Error ? err.message : "Gagal memuat Report Center.")).finally(() => setContextLoading(false));
   }, [user]);
 
@@ -45,7 +45,7 @@ export const ReportCenterPage: React.FC<ReportCenterPageProps> = ({ variant = "d
     setFilter((current) => ({ ...current, periodPreset: preset, startDate: iso(start), endDate: iso(now) }));
   };
 
-  const selectScope = (scope: ReportScope) => setFilter((current) => ({ ...current, scope, studentId: undefined, habitId: scope === "habit" ? habits[0]?.id : current.habitId, initiative: scope === "initiative" ? "ALL" : current.initiative, classId: user?.role === "kepala_sekolah" ? current.classId : undefined }));
+  const selectScope = (scope: ReportScope) => setFilter((current) => ({ ...current, scope, studentId: undefined, habitId: scope === "habit" ? (habits[0]?.id ?? current.habitId) : current.habitId, initiatives: scope === "habit" ? ["Sadar sendiri", "Disuruh"] : current.initiatives, classId: user?.role === "kepala_sekolah" ? current.classId : undefined }));
 
   const runReport = async () => {
     if (!user) return;
@@ -70,7 +70,7 @@ export const ReportCenterPage: React.FC<ReportCenterPageProps> = ({ variant = "d
   };
 
   const formatCell = (value: unknown) => value == null || value === "" ? "—" : String(value);
-  const classFilterVisible = user?.role === "kepala_sekolah" && filter.scope !== "school";
+  const classFilterVisible = user?.role === "kepala_sekolah";
   const currentColumns = useMemo(() => result?.columns ?? [], [result]);
 
   if (contextLoading) return <div className="animate-pulse space-y-5"><div className="h-9 w-72 rounded-xl bg-slate-200" /><div className="h-28 rounded-3xl bg-slate-200" /><div className="h-80 rounded-3xl bg-slate-200" /></div>;
@@ -82,9 +82,30 @@ export const ReportCenterPage: React.FC<ReportCenterPageProps> = ({ variant = "d
     <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex items-center gap-2 font-heading text-lg font-bold text-slate-900"><Filter className="h-5 w-5" style={{ color: accent }} /> Filter laporan</div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <label className="text-sm font-bold text-slate-700">Jenis laporan<select value={filter.scope} onChange={(e) => selectScope(e.target.value as ReportScope)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-medium outline-none">{availableScopes.map((scope) => <option key={scope} value={scope}>{scope === "student" ? "Siswa" : scope === "class" ? "Rombel / Kelas" : scope === "school" ? "Sekolah" : scope === "achievement" ? "Pencapaian" : scope === "habit" ? "Per Kebiasaan" : "Per Inisiatif"}</option>)}</select></label>
+        <label className="text-sm font-bold text-slate-700">Jenis laporan<select value={filter.scope} onChange={(e) => selectScope(e.target.value as ReportScope)} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-medium outline-none">{availableScopes.map((scope) => <option key={scope} value={scope}>{scope === "student" ? "Siswa" : scope === "class" ? "Rombel / Kelas" : scope === "achievement" ? "Pencapaian" : scope === "habit" ? "Per Kebiasaan" : "Per Inisiatif"}</option>)}</select></label>
         {filter.scope === "habit" && <label className="text-sm font-bold text-slate-700">Kebiasaan<select value={filter.habitId ?? ""} onChange={(e) => setFilter({ ...filter, habitId: e.target.value })} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-medium outline-none">{habits.map((habit) => <option key={habit.id} value={habit.id}>{habit.name}</option>)}</select></label>}
-        {filter.scope === "initiative" && <label className="text-sm font-bold text-slate-700">Jenis inisiatif<select value={filter.initiative ?? "ALL"} onChange={(e) => setFilter({ ...filter, initiative: e.target.value as InitiativeReportValue })} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-medium outline-none"><option value="ALL">Semua</option><option value="Sadar sendiri">Sadar sendiri</option><option value="Disuruh">Disuruh</option></select></label>}
+        {filter.scope === "habit" && (
+          <div className="self-end pb-0">
+            <p className="mb-2 text-sm font-bold text-slate-700">Inisiatif</p>
+            <div className="flex flex-wrap gap-2">
+              <label className="inline-flex min-h-[42px] items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700">
+                <input type="checkbox" className="accent-violet-600" checked={(filter.initiatives ?? []).includes("Sadar sendiri")} onChange={() => setFilter((current) => {
+                  const currentValues = current.initiatives ?? [];
+                  return { ...current, initiatives: currentValues.includes("Sadar sendiri") ? currentValues.filter((x) => x !== "Sadar sendiri") : [...currentValues, "Sadar sendiri"] };
+                })} />
+                Sadar sendiri
+              </label>
+              <label className="inline-flex min-h-[42px] items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700">
+                <input type="checkbox" className="accent-violet-600" checked={(filter.initiatives ?? []).includes("Disuruh")} onChange={() => setFilter((current) => {
+                  const currentValues = current.initiatives ?? [];
+                  return { ...current, initiatives: currentValues.includes("Disuruh") ? currentValues.filter((x) => x !== "Disuruh") : [...currentValues, "Disuruh"] };
+                })} />
+                Disuruh
+              </label>
+            </div>
+          </div>
+        )}
+        
         {classFilterVisible && <label className="text-sm font-bold text-slate-700">Rombel / Kelas<select value={filter.classId ?? ""} onChange={(e) => setFilter({ ...filter, classId: e.target.value })} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-medium outline-none"><option value="">Semua kelas</option>{classes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}
         <label className="text-sm font-bold text-slate-700">Periode<select value={filter.periodPreset} onChange={(e) => updatePreset(e.target.value as ReportFilter["periodPreset"])} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-medium outline-none"><option value="this_week">Minggu ini</option><option value="this_month">Bulan ini</option><option value="this_term">Semester / periode</option><option value="custom">Custom</option></select></label>
         <label className="text-sm font-bold text-slate-700">Mulai<input type="date" value={filter.startDate} onChange={(e) => setFilter({ ...filter, startDate: e.target.value, periodPreset: "custom" })} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-medium outline-none" /></label>

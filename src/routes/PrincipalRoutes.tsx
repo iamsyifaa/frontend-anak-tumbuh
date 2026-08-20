@@ -6,6 +6,7 @@ import { PrincipalDashboardPage } from "../pages/PrincipalDashboardPage";
 import { SchoolMasterPage } from "../pages/SchoolMasterPage";
 import { TeacherManagementPage } from "../pages/TeacherManagementPage";
 import { StudentManagementPage } from "../pages/StudentManagementPage";
+import { ArchivedStudentsPage } from "../pages/ArchivedStudentsPage";
 import { StudentAccountManagementPage } from "../pages/StudentAccountManagementPage";
 import { HabitConfigurationPage } from "../pages/HabitConfigurationPage";
 import { PointConfigurationPage } from "../pages/PointConfigurationPage";
@@ -21,6 +22,7 @@ export const PrincipalRoutes: React.FC = () => (
         <Route path="/dashboard/kepsek/schools" element={<ProtectedRoute requiredPermission="read:school_master" />}><Route index element={<SchoolMasterPage />} /></Route>
         <Route path="/dashboard/kepsek/teachers" element={<ProtectedRoute requiredPermission="read:teachers" />}><Route index element={<TeacherManagementPage />} /></Route>
         <Route path="/dashboard/kepsek/students" element={<ProtectedRoute requiredPermission="read:students" />}><Route index element={<StudentManagementPage />} /></Route>
+        <Route path="/dashboard/kepsek/students/archive" element={<ProtectedRoute requiredPermission="read:students" />}><Route index element={<ArchivedStudentsPage />} /></Route>
         <Route path="/dashboard/kepsek/student-accounts" element={<ProtectedRoute requiredPermission="generate:student_qr" />}><Route index element={<StudentAccountManagementPage />} /></Route>
         <Route path="/dashboard/kepsek/habits" element={<ProtectedRoute requiredPermission="read:habit_config" />}><Route index element={<HabitConfigurationPage />} /></Route>
         <Route path="/dashboard/kepsek/points" element={<ProtectedRoute requiredPermission="read:point_config" />}><Route index element={<PointConfigurationPage />} /></Route>

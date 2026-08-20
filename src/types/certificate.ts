@@ -21,13 +21,19 @@ export interface CertificateIssueRequest {
   habitName?: string;
   periodLabel: string;
   awardTitle?: string;
+  waliTeacherId: string;
 }
 
 export interface IssuedCertificate {
   id: string;
   certificateNumber: string;
+  schoolId: string;
   studentId: string;
   studentName: string;
+  classGroupId: string;
+  className: string;
+  waliTeacherId: string;
+  waliTeacherName: string;
   templateId: string;
   title: string;
   description: string;
@@ -41,7 +47,12 @@ export interface IssuedCertificate {
 export interface CertificateManagementContext {
   templates: CertificateTemplate[];
   issued: IssuedCertificate[];
-  studentOptions: { id: string; name: string; className: string }[];
+  studentOptions: { id: string; name: string; className: string; classGroupId: string }[];
+  waliTeachers: { id: string; name: string; classGroupId?: string; classGroupName?: string }[];
+}
+
+export interface WaliCertificateContext {
+  issued: IssuedCertificate[];
 }
 
 export const CERTIFICATE_MANAGEMENT_ROLES: UserRole[] = ["super_admin", "kepala_sekolah"];

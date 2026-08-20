@@ -61,7 +61,7 @@ export const StudentDashboardAggregate: React.FC<Props> = ({ data, loading, erro
     </section>
 
     {/* 4. ZONA APRESIASI & KOLEKSI */}
-    <section className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-5 anim-stagger-5">
+    <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 anim-stagger-5">
       <SummaryPanel compact title="Badge" icon={<Award className="w-5 h-5 text-amber-500" />} value={`${unlockedBadges}/${data.achievements.badges.length}`} description="badge terbuka" onClick={() => onOpenAchievements("badges")} />
       <SummaryPanel compact title="Penghargaan" icon={<Medal className="w-5 h-5 text-rose-500" />} value={`${data.achievements.awards.length}`} description="penghargaan diterima" onClick={() => onOpenAchievements("awards")} />
     </section>

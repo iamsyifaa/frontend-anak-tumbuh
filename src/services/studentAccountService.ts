@@ -24,13 +24,22 @@ const randomToken = (studentId: string) => {
   return `mock-student-qr-${studentId}-${Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("")}`;
 };
 
-const sha256 = async (value: string) => {
-  if (typeof crypto !== "undefined" && crypto.subtle) {
-    const data = new TextEncoder().encode(value);
-    const digest = await crypto.subtle.digest("SHA-256", data);
-    return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+// Mock-only: raw credentials stay in this in-memory session map so already-generated
+// students can be printed again during the same frontend session. Production must never persist raw QR credentials here.
+const mockCredentialSession = new Map<string, GeneratedQrCredential>();
+
+const createCredential = (student: Student, token: string, groups: Awaited<ReturnType<typeof schoolMasterService.listClassGroups>>): GeneratedQrCredential => {
+  const group = groups.find((item) => item.id === student.classGroupId);
+  return {
+    studentId: student.id, studentName: student.name, schoolId: student.schoolId, academicYearId: student.academicYearId, classGroupId: student.classGroupId,
+    levelName: group?.levelName ?? "—", rombelName: group?.rombelName ?? "—", qrToken: token, generatedAt: new Date().toISOString(),
+  };
+};
+
+const seedMockCredential = (student: Student, groups: Awaited<ReturnType<typeof schoolMasterService.listClassGroups>>) => {
+  if (student.id === "stu-001" && !mockCredentialSession.has(student.id)) {
+    mockCredentialSession.set(student.id, createCredential(student, `mock-student-qr-${student.id}-00112233445566778899aabbccddeeff`, groups));
   }
-  return `mock-hash-${value.length}-${Date.now()}`;
 };
 
 export const studentAccountService = {
@@ -40,8 +49,10 @@ export const studentAccountService = {
     assertScope(user, request.schoolId);
 
     const students = await studentService.listStudents(user, request.schoolId);
-    let targets = students.filter((student) => student.status === "active" && student.method === "DIGITAL");
+    const groups = (await studentService.listImportContext(user, request.schoolId)).groups;
+    students.filter((student) => student.status === "active" && student.method === "DIGITAL" && student.accountStatus === "generated" && student.qrStatus === "active").forEach((student) => seedMockCredential(student, groups));
 
+    let targets = students.filter((student) => student.status === "active" && student.method === "DIGITAL");
     if (request.scope === "ACADEMIC_YEAR") targets = targets.filter((student) => student.academicYearId === request.academicYearId);
     if (request.scope === "CLASS_GROUP") targets = targets.filter((student) => student.classGroupId === request.classGroupId);
     if (request.scope === "SELECTED") targets = targets.filter((student) => request.studentIds?.includes(student.id));
@@ -53,41 +64,44 @@ export const studentAccountService = {
       return student.method === "MANUAL";
     }).length;
 
-    const skippedAlreadyGenerated = targets.filter((student) => student.qrStatus === "active" && student.accountStatus === "generated").length;
-    const toGenerate = targets.filter((student) => !(student.qrStatus === "active" && student.accountStatus === "generated"));
-
-    const credentials: GeneratedQrCredential[] = [];
     const generated: Student[] = [];
-    const groups = (await studentService.listImportContext(user, request.schoolId)).groups;
-
-    for (const student of toGenerate) {
+    const credentials: GeneratedQrCredential[] = [];
+    let skippedAlreadyGenerated = 0;
+    for (const student of targets) {
+      if (student.qrStatus === "active" && student.accountStatus === "generated") {
+        const existing = mockCredentialSession.get(student.id);
+        if (existing) credentials.push(existing);
+        else skippedAlreadyGenerated += 1;
+        continue;
+      }
       const token = randomToken(student.id);
-      // Only the digest would be persisted by a real backend. The raw credential exists in this response only for the print session.
-      await sha256(token);
-      const group = groups.find((item) => item.id === student.classGroupId);
-      credentials.push({
-        studentId: student.id,
-        studentName: student.name,
-        schoolId: student.schoolId,
-        academicYearId: student.academicYearId,
-        classGroupId: student.classGroupId,
-        levelName: group?.levelName ?? "—",
-        rombelName: group?.rombelName ?? "—",
-        qrToken: token,
-        generatedAt: new Date().toISOString(),
-      });
+      const credential = createCredential(student, token, groups);
+      mockCredentialSession.set(student.id, credential);
+      credentials.push(credential);
       generated.push({ ...student, accountStatus: "generated", qrStatus: "active" });
     }
 
-    return { generated, skippedManual, skippedAlreadyGenerated, credentials };
+    // Mock response mirrors backend state change so the UI stays consistent after generation.
+    if (generated.length) {
+      const byId = new Map(generated.map((student) => [student.id, student]));
+      // studentService owns the authoritative mock list; update through its existing endpoint.
+      for (const student of generated) await studentService.generateQr(user, student.id);
+      const normalizedGenerated = generated.map((student) => byId.get(student.id) ?? student);
+      return { generated: normalizedGenerated, skippedManual, skippedAlreadyGenerated, credentials };
+    }
+
+    return { generated: [], skippedManual, skippedAlreadyGenerated, credentials };
   },
 
   async revoke(user: UserProfile, student: Student) {
-    await wait();
-    assertPermission(user);
-    assertScope(user, student.schoolId);
+    await wait(); assertPermission(user); assertScope(user, student.schoolId);
     if (student.method !== "DIGITAL") throw new Error("Siswa MANUAL tidak memiliki credential QR.");
     if (student.qrStatus !== "active") throw new Error("QR siswa tidak sedang aktif.");
-    return { ...student, qrStatus: "revoked" as const };
+    mockCredentialSession.delete(student.id);
+    return studentService.revokeQr(user, student.id);
+  },
+
+  async clearSessionCredential(studentId: string) {
+    mockCredentialSession.delete(studentId);
   },
 };

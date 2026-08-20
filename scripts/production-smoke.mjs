@@ -30,6 +30,7 @@ assert.match(app, /path="\/dashboard\/siswa"/, "Student dashboard route must exi
 assert.match(app, /allowedRoles=\{\["siswa"\]\}/, "Student dashboard must be role protected");
 assert.doesNotMatch(superAdminShell, /Report Center|\/dashboard\/admin\/reports/, "Super Admin must not expose Report Center");
 assert.match(principalShell, /\/dashboard\/kepsek\/reports/, "Principal shell must use its own report route");
+assert.match(read("src/pages/SchoolMasterPage.tsx"), /isSuperAdmin && activeTab === "school"/, "Principal must not render the school list tab");
 assert.match(app, /\/dashboard\/admin\/certificates/, "Super Admin certificate route must exist");
 assert.match(app, /\/dashboard\/kepsek\/certificates/, "Principal certificate route must exist");
 assert.match(certificateService, /manage:certificates/, "Certificate management permission must be enforced");
@@ -39,20 +40,23 @@ assert.doesNotMatch(pencapaian, /Sertifikat|certificate/, "Student Pencapaian mu
 assert.doesNotMatch(app, /dashboard\/siswa\/certificate/, "Student certificate route must be removed");
 assert.match(studentHabitPage, /Isi dengan jujur/, "Daily habit honesty warning must be visible");
 assert.match(reports, /id: "habit"/, "Habit report type must exist");
-assert.match(reports, /id: "initiative"/, "Initiative report type must exist");
+assert.doesNotMatch(reports, /id: "initiative"/, "Standalone initiative report type must be removed");
 assert.match(reportPage, /Per Kebiasaan/, "Report Center must expose habit report option");
-assert.match(reportPage, /Per Inisiatif/, "Report Center must expose initiative report option");
+assert.match(reportPage, /checked=\{\(filter\.initiatives \?\? \[\]\)\.includes\("Sadar sendiri"\)\}/, "Habit report must expose Sadar sendiri checkbox");
+assert.match(reportPage, /checked=\{\(filter\.initiatives \?\? \[\]\)\.includes\("Disuruh"\)\}/, "Habit report must expose Disuruh checkbox");
 assert.match(reportPage, /user\?\.role === "kepala_sekolah"/, "Class filter must be Principal-only");
 assert.match(qrPage, /Download PNG/, "QR management must offer PNG download");
 assert.match(qrPage, /Semua angkatan/, "QR download must support cohort filter");
 assert.match(qrPage, /Semua kelas/, "QR download must support class filter");
 assert.match(qrPage, /Semua rombel/, "QR download must support rombel filter");
+assert.match(qrPage, /Simpan Filter/, "QR download must have a saved-filter action");
 assert.match(qrTypes, /academicYearId\?: string;/, "QR credential must preserve academic year metadata");
-assert.match(conditionBuilder, /Jika jawabannya berbeda, indikator target disembunyikan/, "Conditional rule behavior must be explicit in UI");
+assert.doesNotMatch(read("src/pages/HabitConfigurationPage.tsx"), /Conditional indicator|Atur conditional indicator|ConditionBuilder/, "Conditional indicator UI must be removed from admin school configuration");
 assert.match(adminDashboard, /SUPER_ADMIN_DASHBOARD_PERMISSIONS/);
 assert.match(adminDashboardService, /role !== "super_admin"/, "Dashboard service must enforce Super Admin role");
 assert.match(app, /allowedRoles=\{\["wali_kelas"\]\}/, "Wali Kelas dashboard must be role protected");
 assert.match(app, /path="\/dashboard\/walikelas"/, "Wali Kelas dashboard route must exist");
+assert.match(app, /path="\/dashboard\/walikelas\/certificates"/, "Wali Kelas certificate route must exist");
 assert.match(auth, /siswa_manual/, "Manual student fixture must exist");
 assert.match(submission, /method !== "DIGITAL"/, "Manual student must be rejected by submission boundary");
 assert.match(points, /method !== "DIGITAL"/, "Manual student must be rejected by scoring/submission boundary");
@@ -72,6 +76,15 @@ if (smokeUrl) {
   for (const route of ["/login", "/auth/qr", "/dashboard/siswa", "/dashboard/admin", "/dashboard/kepsek", "/dashboard/walikelas"]) {
     const response = await fetch(`${base}${route}`, { redirect: "manual" });
     if (response.status >= 500) throw new Error(`${route} returned HTTP ${response.status}`);
-    console.log(`HTTP smoke ${route}: ${response.status}`);
+    
+assertFileContains("src/services/authService.ts", "import:teachers", "Kepala Sekolah memiliki permission import guru");
+assertFileContains("src/pages/TeacherManagementPage.tsx", "Username dan password dibuat otomatis", "Form tambah guru tanpa username manual");
+assertFileContains("src/pages/StudentAccountManagementPage.tsx", "Lihat QR Siap Dicetak", "Tabel credential tidak lagi menjadi tempat download QR");
+assertFileContains("src/services/studentAccountService.ts", "mockCredentialSession", "Generate QR mempertahankan credential session untuk bulk print mock");
+assertFileContains("src/components/student/StudentPlacementDialog.tsx", "Lulus / Arsip", "Placement memiliki flow lulus");
+assertFileContains("src/services/studentService.ts", "graduateStudents", "Student service memiliki aksi kelulusan");
+assertFileContains("src/pages/CertificateManagementPage.tsx", "Tambah Template Sertifikat", "Certificate template memiliki tombol tambah");
+assertFileContains("src/pages/WaliKelasDashboardPage.tsx", "/dashboard/walikelas/certificates", "Card sertifikat Wali Kelas clickable");
+console.log(`HTTP smoke ${route}: ${response.status}`);
   }
 }

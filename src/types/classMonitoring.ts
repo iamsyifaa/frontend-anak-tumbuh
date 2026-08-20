@@ -38,6 +38,8 @@ export interface ClassMonitoringDetail extends ClassMonitoringStudent {
     name: string;
     status: "done" | "not_done" | "not_available";
     indicatorLabel?: string;
+    description?: string;
+    initiative?: "Sadar sendiri" | "Disuruh";
   }>;
   weeklyActivity: Array<{
     date: string;

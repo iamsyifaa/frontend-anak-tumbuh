@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ClipboardList,
   FileBarChart2,
+  FileSpreadsheet,
   GraduationCap,
   RefreshCw,
   ShieldCheck,
@@ -78,7 +79,7 @@ export const PrincipalDashboardPage: React.FC = () => {
           : Promise.resolve([] as Teacher[]),
         hasPermission("read:reports")
           ? reportService.getReport(user, {
-              scope: "school",
+              scope: "student",
               periodPreset: "this_month",
               startDate: monthStart,
               endDate,
@@ -142,6 +143,13 @@ export const PrincipalDashboardPage: React.FC = () => {
       icon: Users,
       permission: "read:teachers",
       to: "/dashboard/kepsek/teachers",
+    },
+    {
+      label: "Import Guru",
+      description: "Import guru via Excel dan buat credential login otomatis.",
+      icon: FileSpreadsheet,
+      permission: "import:teachers",
+      to: "/dashboard/kepsek/teachers?import=1",
     },
     {
       label: "Siswa, Penempatan & Import",

@@ -312,6 +312,37 @@ export const schoolMasterService = {
     classGroups[index] = updated; return updated;
   },
 
+  async registerTeacherOption(user: UserProfile, input: MasterTeacherOption): Promise<MasterTeacherOption> {
+    await wait();
+    assertPermission(user, MASTER_PERMISSIONS.write);
+    assertSchoolScope(user, input.schoolId);
+    if (!input.id || !input.name.trim()) throw new Error("Data guru tidak valid.");
+    const existing = teachers.find((teacher) => teacher.id === input.id);
+    if (existing) return { ...existing };
+    const option = { ...input, name: input.name.trim() };
+    teachers.push(option);
+    return { ...option };
+  },
+
+  async assignHomeroomTeacher(user: UserProfile, groupId: string, teacherId?: string): Promise<ClassGroup> {
+    await wait();
+    assertPermission(user, MASTER_PERMISSIONS.write);
+    const index = classGroups.findIndex((group) => group.id === groupId);
+    if (index < 0) throw new Error("Rombel tidak ditemukan.");
+    const group = classGroups[index];
+    assertSchoolScope(user, group.schoolId);
+    if (!teacherId) {
+      classGroups[index] = { ...group, homeroomTeacherId: undefined, homeroomTeacherName: undefined };
+      return { ...classGroups[index] };
+    }
+    const teacher = teachers.find((item) => item.id === teacherId && item.schoolId === group.schoolId);
+    if (!teacher) throw new Error("Wali Kelas tidak valid untuk sekolah tersebut.");
+    const conflict = classGroups.some((item) => item.id !== groupId && item.schoolId === group.schoolId && item.academicYearId === group.academicYearId && item.homeroomTeacherId === teacherId);
+    if (conflict) throw new Error("Wali Kelas sudah memiliki rombel aktif pada tahun ajaran tersebut.");
+    classGroups[index] = { ...group, homeroomTeacherId: teacher.id, homeroomTeacherName: teacher.name };
+    return { ...classGroups[index] };
+  },
+
   async listTeachers(user: UserProfile, schoolId: string): Promise<MasterTeacherOption[]> {
     await wait();
     assertPermission(user, MASTER_PERMISSIONS.read);

@@ -19,11 +19,14 @@ import { WaliKelasDashboardPage } from "./pages/WaliKelasDashboardPage";
 import { SchoolMasterPage } from "./pages/SchoolMasterPage";
 import { TeacherManagementPage } from "./pages/TeacherManagementPage";
 import { StudentManagementPage } from "./pages/StudentManagementPage";
+import { ArchivedStudentsPage } from "./pages/ArchivedStudentsPage";
 import { StudentAccountManagementPage } from "./pages/StudentAccountManagementPage";
 import { HabitConfigurationPage } from "./pages/HabitConfigurationPage";
 import { PointConfigurationPage } from "./pages/PointConfigurationPage";
 import { ReportCenterPage } from "./pages/ReportCenterPage";
 import { CertificateManagementPage } from "./pages/CertificateManagementPage";
+import { WaliKelasCertificatePage } from "./pages/WaliKelasCertificatePage";
+import { StudentProfilePage } from "./pages/StudentProfilePage";
 
 export default function App() {
   return (
@@ -82,6 +85,7 @@ export default function App() {
               </Route>
               <Route element={<ProtectedRoute requiredPermission="read:students" />}>
                 <Route path="/dashboard/kepsek/students" element={<StudentManagementPage />} />
+                <Route path="/dashboard/kepsek/students/archive" element={<ArchivedStudentsPage />} />
               </Route>
               <Route element={<ProtectedRoute requiredPermission="generate:student_qr" />}>
                 <Route path="/dashboard/kepsek/student-accounts" element={<StudentAccountManagementPage />} />
@@ -112,12 +116,17 @@ export default function App() {
                 <Route path="/dashboard/walikelas/reports" element={<ReportCenterPage variant="wali_kelas" />} />
                 <Route path="/dashboard/wali-kelas/reports" element={<ReportCenterPage variant="wali_kelas" />} />
               </Route>
+              <Route element={<ProtectedRoute requiredPermission="read:certificates" />}>
+                <Route path="/dashboard/walikelas/certificates" element={<WaliKelasCertificatePage />} />
+                <Route path="/dashboard/wali-kelas/certificates" element={<WaliKelasCertificatePage />} />
+              </Route>
             </Route>
           </Route>
 
           {/* Student area remains independent from the role dashboards. */}
           <Route element={<ProtectedRoute allowedRoles={["siswa"]} requiredPermission="read:own_habits" />}>
             <Route path="/dashboard/siswa" element={<StudentDashboard />} />
+            <Route path="/dashboard/siswa/profile" element={<StudentProfilePage />} />
           </Route>
 
           {/* Unknown dashboard path: return to the role login instead of rendering a blank page. */}

@@ -52,7 +52,7 @@ export const SchoolMasterPage: React.FC = () => {
   const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
   const [classGroups, setClassGroups] = useState<ClassGroup[]>([]);
-  const [activeTab, setActiveTab] = useState<"school" | "academic-year" | "class-group">("school");
+  const [activeTab, setActiveTab] = useState<"school" | "academic-year" | "class-group">(isSuperAdmin ? "school" : "academic-year");
   const [loading, setLoading] = useState(true);
   const [sectionLoading, setSectionLoading] = useState(false);
   const [error, setError] = useState("");
@@ -287,9 +287,9 @@ export const SchoolMasterPage: React.FC = () => {
           <div className="rounded-3xl bg-white shadow-sm ring-1 ring-slate-100">
             <div className="flex overflow-x-auto border-b border-slate-100 px-2 pt-2">
               {[
-                ["school", "Sekolah", Building2],
-                ["academic-year", "Tahun Ajaran", CalendarDays],
-                ["class-group", "Kelas / Rombel", GraduationCap],
+                ...(isSuperAdmin ? [["school", "Sekolah", Building2] as const] : []),
+                ["academic-year", "Tahun Ajaran", CalendarDays] as const,
+                ["class-group", "Kelas / Rombel", GraduationCap] as const,
               ].map(([id, label, Icon]) => (
                 <button
                   key={id as string}
@@ -303,7 +303,7 @@ export const SchoolMasterPage: React.FC = () => {
             </div>
 
             <div className="p-5">
-              {activeTab === "school" && (
+              {isSuperAdmin && activeTab === "school" && (
                 <div>
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div><h3 className="font-extrabold text-slate-900">Daftar Sekolah</h3><p className="text-xs text-slate-500">Super Admin melihat lintas sekolah; Kepala Sekolah hanya melihat scope sekolahnya.</p></div>

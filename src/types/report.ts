@@ -1,9 +1,9 @@
 import { UserRole } from "./auth";
 
-export type ReportScope = "student" | "class" | "school" | "achievement" | "habit" | "initiative";
+export type ReportScope = "student" | "class" | "achievement" | "habit";
 export type ReportFormat = "csv" | "pdf";
 export type ReportPeriodPreset = "this_week" | "this_month" | "this_term" | "custom";
-export type InitiativeReportValue = "ALL" | "Sadar sendiri" | "Disuruh";
+export type InitiativeReportValue = "Sadar sendiri" | "Disuruh";
 
 export interface ReportFilter {
   scope: ReportScope;
@@ -13,7 +13,7 @@ export interface ReportFilter {
   classId?: string;
   studentId?: string;
   habitId?: string;
-  initiative?: InitiativeReportValue;
+  initiatives?: InitiativeReportValue[];
   search?: string;
 }
 
@@ -42,8 +42,8 @@ export interface ReportRow {
   habitPercent?: number | null;
   habitPoints?: number | null;
   habitExp?: number | null;
-  selfInitiativeCount?: number | null;
-  promptedInitiativeCount?: number | null;
+  habitDescription?: string | null;
+  initiative?: InitiativeReportValue | null;
 }
 
 export interface AchievementReportRow {
@@ -56,10 +56,7 @@ export interface AchievementReportRow {
   latestAward: string | null;
 }
 
-export interface ReportColumn {
-  key: string;
-  label: string;
-}
+export interface ReportColumn { key: string; label: string; }
 
 export interface ReportResult {
   generatedAt: string;
@@ -70,12 +67,7 @@ export interface ReportResult {
   columns: ReportColumn[];
   rows: ReportRow[];
   achievementRows: AchievementReportRow[];
-  totals: {
-    students: number;
-    digital: number;
-    manual: number;
-    activeDays: number;
-  };
+  totals: { students: number; digital: number; manual: number; activeDays: number };
   exportAllowed: boolean;
   exportFormats: ReportFormat[];
 }

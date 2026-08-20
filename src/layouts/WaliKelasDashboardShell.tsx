@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   ShieldCheck,
+  FileBadge,
   X,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -24,6 +25,9 @@ export const WaliKelasDashboardShell: React.FC = () => {
     { label: "Monitoring Rombel", to: "/dashboard/walikelas", icon: ClipboardList },
     ...(hasPermission("read:reports")
       ? [{ label: "Report Center", to: "/dashboard/walikelas/reports", icon: FileBarChart2 }]
+      : []),
+    ...(hasPermission("read:certificates")
+      ? [{ label: "Sertifikat Siswa", to: "/dashboard/walikelas/certificates", icon: FileBadge }]
       : []),
   ];
 

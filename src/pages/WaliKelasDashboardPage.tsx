@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Activity, Award, Download, FileBarChart2, MessageCircle, Mic, RefreshCw, Search, Send, TrendingUp, Users, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Activity, Award, Download, FileBadge, FileBarChart2, MessageCircle, Mic, RefreshCw, Search, Send, TrendingUp, Users, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { classMonitoringService } from "../services/classMonitoringService";
+import { certificateService } from "../services/certificateService";
+import { IssuedCertificate } from "../types/certificate";
 import { ClassMonitoringAggregate, ClassMonitoringDetail, MonitoringActivityStatus, MonitoringComment } from "../types/classMonitoring";
 
 const statusLabel: Record<MonitoringActivityStatus, string> = { completed: "Lengkap", partial: "Sebagian", not_started: "Belum mulai" };
@@ -28,6 +31,7 @@ function formatDate(value?: string) {
 
 export const WaliKelasDashboardPage: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<ClassMonitoringAggregate | null>(null);
   const [selected, setSelected] = useState<ClassMonitoringDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,6 +47,8 @@ export const WaliKelasDashboardPage: React.FC = () => {
   const [savingComment, setSavingComment] = useState(false);
   const [listening, setListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(true);
+  const [certificates, setCertificates] = useState<IssuedCertificate[]>([]);
+  const [certificateLoading, setCertificateLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -52,6 +58,21 @@ export const WaliKelasDashboardPage: React.FC = () => {
     finally { setLoading(false); }
   }, [user]);
   useEffect(() => { void load(); }, [load]);
+
+  const loadCertificates = useCallback(async () => {
+    if (!user || user.role !== "wali_kelas") return;
+    setCertificateLoading(true);
+    try {
+      const ctx = await certificateService.getWaliContext(user);
+      setCertificates(ctx.issued);
+    } catch {
+      setCertificates([]);
+    } finally {
+      setCertificateLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => { void loadCertificates(); }, [loadCertificates]);
 
   const filtered = useMemo(() => data?.students.filter((student) => {
     const q = query.trim().toLowerCase();
@@ -116,6 +137,44 @@ export const WaliKelasDashboardPage: React.FC = () => {
     <div className="mx-auto max-w-7xl space-y-6">
       <header className="rounded-[2rem] bg-gradient-to-br from-[#203A5B] to-[#294a70] p-5 text-white shadow-lg md:p-7"><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p className="text-sm font-semibold text-[#D7EFFF]">Monitoring Wali Kelas</p><h1 className="mt-1 text-2xl font-extrabold md:text-3xl">{data.classGroup.levelName} • {data.classGroup.rombelName}</h1><p className="mt-1 text-sm text-[#D7EFFF]">Tahun Ajaran {data.classGroup.academicYearName} · {user?.name}</p></div><div className="flex flex-wrap gap-2"><button onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold"><RefreshCw className="h-4 w-4"/>Muat ulang</button><button disabled={!data.permissions.canExport} onClick={exportCsv} className="inline-flex items-center gap-2 rounded-xl bg-[#D7EFFF] px-4 py-2.5 text-sm font-bold text-[#203A5B] disabled:opacity-50"><Download className="h-4 w-4"/>Export laporan</button><button onClick={() => { logout(); window.location.href="/login"; }} className="rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold">Keluar</button></div></div></header>
 
+      <section className="rounded-3xl border bg-white p-5 shadow-sm transition hover:shadow-md md:p-6 cursor-pointer" onClick={() => navigate("/dashboard/walikelas/certificates")}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-violet-50 text-violet-700"><FileBadge className="h-5 w-5" /></span>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-violet-700">Sertifikat Siswa</p>
+              <h2 className="mt-1 text-lg font-extrabold text-slate-900">Sertifikat yang bisa langsung diunduh</h2>
+              <p className="mt-1 text-sm text-slate-500">Admin/Kepala Sekolah memberikan sertifikat ke rombel ini. Wali Kelas tinggal mengunduhnya untuk dicetak dan dibagikan ke siswa.</p>
+            </div>
+          </div>
+          <button type="button" onClick={(event) => { event.stopPropagation(); navigate("/dashboard/walikelas/certificates"); }} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#203A5B] px-4 py-3 text-sm font-bold text-white hover:bg-[#29496f]">
+            <FileBadge className="h-4 w-4" /> Lihat Semua Sertifikat
+          </button>
+        </div>
+        {certificateLoading ? (
+          <div className="mt-4 h-20 animate-pulse rounded-2xl bg-slate-50" />
+        ) : certificates.length ? (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {certificates.slice(0, 3).map((certificate) => (
+              <div key={certificate.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-extrabold text-slate-900">{certificate.studentName}</p>
+                    <p className="mt-1 truncate text-xs font-semibold text-slate-500">{certificate.title}</p>
+                    <p className="mt-1 text-[11px] text-slate-400">{certificate.periodLabel}</p>
+                  </div>
+                  <button type="button" onClick={() => window.location.href = "/dashboard/walikelas/certificates"} className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-white px-2.5 py-2 text-[10px] font-black text-[#203A5B] ring-1 ring-slate-200">
+                    <Download className="h-3.5 w-3.5" /> Unduh
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">Belum ada sertifikat yang diberikan untuk rombel ini.</div>
+        )}
+      </section>
+
       <section className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-5">{[{label:"Siswa",value:data.summary.totalStudents,icon:Users},{label:"Digital",value:data.summary.digitalStudents,icon:Activity},{label:"Manual",value:data.summary.manualStudents,icon:Users},{label:"Aktif Hari Ini",value:data.summary.activeToday,icon:TrendingUp},{label:"Rata-rata Perkembangan",value:`${data.summary.averageProgressPercent}%`,icon:Award}].map(({label,value,icon:Icon})=><div key={label} className="rounded-2xl border bg-white p-4 shadow-sm md:p-5"><Icon className="h-5 w-5 text-[#203A5B]"/><p className="mt-3 text-xs font-bold text-slate-500">{label}</p><p className="mt-1 text-xl font-extrabold md:text-2xl">{value}</p></div>)}</section>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_300px]"><div className="rounded-3xl border bg-white p-4 shadow-sm md:p-5"><div className="flex flex-col gap-3 lg:flex-row lg:items-center"><div className="relative flex-1"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"/><input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Cari nama atau NIS..." className="w-full rounded-xl border py-3 pl-10 pr-4 text-sm outline-none focus:border-[#203A5B]"/></div><div className="grid grid-cols-2 gap-2 sm:flex"><select value={method} onChange={(e)=>setMethod(e.target.value as typeof method)} className="rounded-xl border px-3 py-3 text-sm font-semibold"><option value="ALL">Semua metode</option><option value="DIGITAL">Digital</option><option value="MANUAL">Manual</option></select><select value={activity} onChange={(e)=>setActivity(e.target.value as typeof activity)} className="rounded-xl border px-3 py-3 text-sm font-semibold"><option value="ALL">Semua aktivitas</option><option value="completed">Lengkap</option><option value="partial">Sebagian</option><option value="not_started">Belum mulai</option></select></div></div></div><div className="rounded-3xl border bg-white p-4 shadow-sm"><div className="flex gap-3"><div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#D7EFFF] text-[#203A5B]"><FileBarChart2 className="h-5 w-5"/></div><div><p className="font-extrabold">Laporan & Pencapaian</p><p className="mt-1 text-xs text-slate-500">Sesuai scope rombel dan hasil filter.</p></div></div><button disabled={!data.permissions.canReadReports || !data.permissions.canExport} onClick={exportCsv} className="mt-3 w-full rounded-xl bg-[#203A5B] px-3 py-2.5 text-xs font-bold text-white disabled:opacity-40">Export laporan rombel</button></div></section>
@@ -125,7 +184,7 @@ export const WaliKelasDashboardPage: React.FC = () => {
 
     {selected && <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/40" onMouseDown={(e)=>{if(e.currentTarget===e.target)setSelected(null)}}><aside className="h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl"><div className="sticky top-0 z-20 flex items-center justify-between border-b bg-white px-5 py-4"><div><h2 className="font-extrabold">Monitoring Siswa</h2><p className="text-xs text-slate-500">{selected.name} · {selected.method}</p></div><button onClick={()=>setSelected(null)} className="rounded-full p-2 hover:bg-slate-100"><X className="h-5 w-5"/></button></div><div className="space-y-6 p-5">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{[["Poin",selected.points],["EXP",selected.exp],["Level",`Lv. ${selected.level}`],["Streak",`${selected.streak} hari`]].map(([k,v])=><div key={String(k)} className="rounded-2xl bg-slate-50 p-4"><p className="text-xs text-slate-400">{k}</p><p className="mt-1 text-lg font-extrabold">{v}</p></div>)}</div>
-      <section className="rounded-3xl border border-[#D7EFFF] bg-[#f8fcff] p-4 md:p-5"><div className="flex items-start justify-between gap-3"><div><h3 className="font-extrabold text-[#203A5B]">Isi 7 Kebiasaan</h3><p className="mt-1 text-xs text-slate-500">Aktivitas dan jawaban digital siswa dalam rombel ini.</p></div><span className="rounded-full bg-[#D7EFFF] px-3 py-1 text-[11px] font-extrabold text-[#203A5B]">{selected.method}</span></div>{selected.method === "MANUAL" ? <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">Siswa Manual menggunakan buku fisik. Tidak ada input atau rekap buku manual melalui aplikasi oleh Wali Kelas.</div> : <div className="mt-4 grid gap-3 sm:grid-cols-2">{selected.habits.map((h, index)=><div key={h.id} className={`rounded-2xl border bg-white p-4 shadow-sm ${h.status === "done" ? "border-emerald-100" : "border-slate-200"}`}><div className="flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#D7EFFF] text-xs font-black text-[#203A5B]">{index + 1}</span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><span className="text-sm font-extrabold text-slate-800">{h.name}</span><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-extrabold ${h.status === "done" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{h.status === "done" ? "Selesai" : "Belum"}</span></div>{h.indicatorLabel && <p className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">{h.indicatorLabel}</p>}</div></div></div>)}</div>}</section>
+      <section className="rounded-3xl border border-[#D7EFFF] bg-[#f8fcff] p-4 md:p-5"><div className="flex items-start justify-between gap-3"><div><h3 className="font-extrabold text-[#203A5B]">Isi 7 Kebiasaan</h3><p className="mt-1 text-xs text-slate-500">Aktivitas dan jawaban digital siswa dalam rombel ini.</p></div><span className="rounded-full bg-[#D7EFFF] px-3 py-1 text-[11px] font-extrabold text-[#203A5B]">{selected.method}</span></div>{selected.method === "MANUAL" ? <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">Siswa Manual menggunakan buku fisik. Tidak ada input atau rekap buku manual melalui aplikasi oleh Wali Kelas.</div> : <div className="mt-4 grid gap-3 sm:grid-cols-2">{selected.habits.map((h, index)=><div key={h.id} className={`rounded-2xl border bg-white p-4 shadow-sm ${h.status === "done" ? "border-emerald-100" : "border-slate-200"}`}><div className="flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#D7EFFF] text-xs font-black text-[#203A5B]">{index + 1}</span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><span className="text-sm font-extrabold text-slate-800">{h.name}</span><span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-extrabold ${h.status === "done" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{h.status === "done" ? "Selesai" : "Belum"}</span></div>{h.indicatorLabel && <p className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">{h.indicatorLabel}</p>}{h.description && <div className="mt-2"><p className="text-[10px] font-black uppercase tracking-wide text-slate-400">Deskripsi isian</p><p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">{h.description}</p></div>}{h.initiative && <div className="mt-2"><p className="text-[10px] font-black uppercase tracking-wide text-slate-400">Inisiatif</p><span className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-[10px] font-black ${h.initiative === "Sadar sendiri" ? "bg-violet-50 text-violet-700" : "bg-amber-50 text-amber-700"}`}>{h.initiative}</span></div>}</div></div></div>)}</div>}</section>
       <section><h3 className="font-extrabold">Perkembangan 7 Hari</h3>{selected.weeklyActivity.length ? <div className="mt-3 rounded-2xl bg-slate-50 p-4"><div className="flex h-32 items-end gap-2">{selected.weeklyActivity.map(d=><div key={d.date} className="flex h-full flex-1 flex-col items-center justify-end gap-1"><div className="w-full rounded-t bg-[#203A5B]" style={{height:`${Math.max(8,d.activityPercent)}%`}} title={`${d.activityPercent}%`}/><span className="text-[9px] text-slate-400">{new Date(d.date).getDate()}</span></div>)}</div><p className="mt-2 text-center text-xs text-slate-500">Persentase aktivitas harian siswa Digital.</p></div> : <p className="mt-3 text-sm text-slate-500">Belum ada riwayat aktivitas digital.</p>}</section>
       <section><h3 className="font-extrabold">Pencapaian</h3><div className="mt-3 grid gap-2 sm:grid-cols-3">{selected.achievements.length ? selected.achievements.map(a=><div key={a.id} className="rounded-xl border p-3"><p className="text-sm font-bold">{a.title}</p><p className="mt-1 text-xs capitalize text-slate-400">{a.type} · {a.date ?? "—"}</p></div>) : <p className="text-sm text-slate-500">Belum ada pencapaian.</p>}</div></section>
       <section><div className="flex items-center gap-2"><MessageCircle className="h-5 w-5 text-[#203A5B]"/><div><h3 className="font-extrabold">Komentar pada Aktivitas</h3><p className="text-xs text-slate-500">Komentar tetap tersedia walaupun jawaban sudah terkunci.</p></div></div><div className="mt-3 space-y-3">{selected.comments.length ? selected.comments.map(c=><div key={c.id} className={`rounded-2xl p-3 ${c.parentCommentId ? "ml-5 bg-sky-50" : c.authorRole === "wali_kelas" ? "bg-[#D7EFFF]" : "bg-slate-50"}`}><div className="flex justify-between gap-3"><div><p className="text-xs font-extrabold">{c.authorName}</p>{c.activityName && <p className="mt-0.5 text-[10px] font-bold text-[#203A5B]">Aktivitas: {c.activityName}</p>}</div><p className="text-[10px] text-slate-400">{formatDate(c.createdAt)}</p></div><p className="mt-1 text-sm text-slate-600">{c.message}</p>{data.permissions.canComment && !c.parentCommentId && <button onClick={()=>{setReplyTo(c);setReplyText("");}} className="mt-2 text-xs font-extrabold text-[#203A5B]">Balas komentar</button>}</div>) : <p className="text-sm text-slate-500">Belum ada komentar pada aktivitas.</p>}</div>

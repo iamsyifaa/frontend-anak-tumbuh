@@ -12,3 +12,27 @@ Do **not** silently migrate the repository to Next.js or invent a Laravel API co
 
 ### Required follow-up
 Before production integration, align the repository with the agreed Next.js + Laravel + Supabase architecture and replace mock service implementations with the finalized backend API boundaries. This change should be handled as a separate migration/change request so existing routes and behavior are not changed implicitly.
+
+## CR-AT-002 — Conditional Indicator UI removed from school configuration
+
+### Source of conflict
+Requirement/ERD v2.0 supports conditional/dependent indicators via `indicator_conditions`.
+
+### Decision for this slice
+Remove the configuration UI from Super Admin and Kepala Sekolah because the latest product decision explicitly cancels the school-facing setup screen. The underlying model/service boundary is retained so the repository remains compatible with the v2.0 data model and future backend responses.
+
+## CR-AT-003 — Certificate distribution delegated to Wali Kelas
+
+### Source of conflict
+Role & Permission v2.0 gives Super Admin and Kepala Sekolah certificate management/generation and gives students access to their own certificates. The latest product decision changes distribution so Wali Kelas downloads the issued certificate for printing and handover to the student.
+
+### Decision for this slice
+Certificates are issued by Super Admin/Kepala Sekolah with a Wali Kelas recipient scope. The student dashboard has no certificate entry point. Wali Kelas can view, preview, download, and print issued certificates within the single rombel scope.
+
+## CR-AT-004 — Graduation flow added to student placement
+
+### Source of conflict
+The baseline defines `graduated` as a retained historical status, but does not specify the exact frontend action flow for bulk graduation from a rombel.
+
+### Decision for this slice
+Add a `Lulus / Arsip` action that selects a source rombel, marks active students as `graduated`, preserves enrollment history, and revokes their QR credential. This remains mock-service behavior until the Laravel endpoint is finalized.

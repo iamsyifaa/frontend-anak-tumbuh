@@ -1,6 +1,7 @@
 import React from "react";
 import { TabType } from "../types";
 import { Bell, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { AvatarBadge } from "./AvatarBadge";
 import { useAuth } from "../context/AuthContext";
 
@@ -15,6 +16,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ isMobileOpen, setIsMobileOpen, activeTab }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const studentName = user?.name ?? "Siswa";
 
   return (
@@ -26,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ isMobileOpen, setIsMobileOpen, a
           <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white" />
         </button>
         <div className="hidden sm:block w-px h-8 bg-slate-100 mx-1" />
-        <button className="flex items-center gap-3 pl-1 pr-2 py-1 rounded-full hover:bg-slate-50 transition-colors group" title={activeTab === "beranda" ? "Profil siswa" : "Profil siswa"}>
+        <button type="button" onClick={() => navigate("/dashboard/siswa/profile")} className="flex items-center gap-3 pl-1 pr-2 py-1 rounded-full hover:bg-slate-50 transition-colors group" title="Profil siswa">
           <AvatarBadge name={studentName} avatarUrl={user?.avatarUrl} size="md" showOnlineStatus={true} />
           <div className="hidden sm:block text-left">
             <p className="text-sm font-extrabold text-slate-800 leading-tight group-hover:text-sky-600 transition-colors">{studentName}</p>

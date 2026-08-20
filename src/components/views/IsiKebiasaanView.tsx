@@ -268,15 +268,15 @@ export const IsiKebiasaanView: React.FC<IsiKebiasaanViewProps> = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 min-w-0">
+      <div className="grid grid-cols-1 items-start lg:grid-cols-2 gap-5 min-w-0">
         <div className="w-full bg-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-sky-100/60">
           <div className="flex items-center justify-between mb-4"><h3 className="text-sm font-extrabold text-slate-800">Riwayat Aktivitas</h3><span className="text-xs font-bold text-sky-600 bg-sky-50 rounded-full px-3 py-1.5">Terbaru</span></div>
           <div className="space-y-2">{recentHistories.map((item) => <div key={item.id} className="flex items-center justify-between text-xs py-2.5 border-b border-slate-50 last:border-0"><div className="min-w-0"><p className="font-bold text-slate-700 truncate">{item.date}</p><p className="text-[11px] text-slate-400 truncate">{item.habitTitle}</p></div><span className="flex-shrink-0 ml-2 w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[11px]">{item.pointsEarned}</span></div>)}</div>
         </div>
 
-        <div className="relative overflow-hidden bg-amber-50 rounded-3xl p-5 shadow-md shadow-amber-100/60">
+        <div className="relative self-start overflow-hidden bg-amber-50 rounded-3xl p-5 shadow-md shadow-amber-100/60">
           <div className="flex items-start gap-3 pr-16"><Lightbulb className="w-8 h-8 text-amber-500 flex-shrink-0" /><div><p className="text-sm font-extrabold text-slate-800">Tips Hebat</p><p className="text-xs text-slate-600 leading-relaxed mt-1">Kebiasaan yang dilakukan mandiri akan membentuk karakter hebat. Terus semangat ya!</p></div></div>
-          <img src="/image/mengacungkan%20jempol.png" alt="Anak memberi jempol" className="absolute right-1 bottom-0 w-20 h-20 object-contain" />
+          <img src="/image/mengacungkan%20jempol.png" alt="Anak memberi jempol" className="absolute right-1 bottom-0 w-16 h-16 object-contain" />
         </div>
       </div>
     </section>

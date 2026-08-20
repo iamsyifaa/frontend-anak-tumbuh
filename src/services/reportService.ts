@@ -1,13 +1,11 @@
 import { UserProfile } from "../types/auth";
-import { ReportColumn, ReportContext, ReportDefinition, ReportFilter, ReportResult, ReportRow, ReportScope } from "../types/report";
+import { ReportContext, ReportDefinition, ReportFilter, ReportResult, ReportRow, ReportScope, ReportColumn, InitiativeReportValue } from "../types/report";
 
 const REPORTS: ReportDefinition[] = [
-  { id: "student", title: "Laporan Siswa", description: "Perkembangan siswa sesuai scope akses dan periode.", allowedRoles: ["kepala_sekolah", "wali_kelas"], exportFormats: ["csv", "pdf"] },
-  { id: "class", title: "Laporan Rombel / Kelas", description: "Ringkasan aktivitas dalam rombel yang dipilih.", allowedRoles: ["kepala_sekolah"], exportFormats: ["csv", "pdf"] },
-  { id: "school", title: "Laporan Sekolah", description: "Ringkasan perkembangan seluruh sekolah.", allowedRoles: ["kepala_sekolah"], exportFormats: ["csv", "pdf"] },
-  { id: "achievement", title: "Laporan Pencapaian", description: "Badge, penghargaan, dan sertifikat yang tercatat.", allowedRoles: ["kepala_sekolah", "wali_kelas"], exportFormats: ["csv", "pdf"] },
-  { id: "habit", title: "Laporan Per Kebiasaan", description: "Rekap satu dari tujuh kebiasaan secara terpisah.", allowedRoles: ["kepala_sekolah", "wali_kelas"], exportFormats: ["csv", "pdf"] },
-  { id: "initiative", title: "Laporan Per Inisiatif", description: "Rekap Sadar sendiri vs Disuruh.", allowedRoles: ["kepala_sekolah", "wali_kelas"], exportFormats: ["csv", "pdf"] },
+  { id: "student", title: "Laporan Siswa", description: "Rekap perkembangan siswa dalam periode terpilih.", allowedRoles: ["kepala_sekolah", "wali_kelas"], exportFormats: ["csv", "pdf"] },
+  { id: "class", title: "Laporan Rombel / Kelas", description: "Rekap satu rombel atau kelas dalam scope sekolah.", allowedRoles: ["kepala_sekolah"], exportFormats: ["csv", "pdf"] },
+  { id: "achievement", title: "Laporan Pencapaian", description: "Rekap badge, penghargaan, dan sertifikat yang tercatat.", allowedRoles: ["kepala_sekolah", "wali_kelas"], exportFormats: ["csv", "pdf"] },
+  { id: "habit", title: "Laporan Per Kebiasaan", description: "Rekap satu dari tujuh kebiasaan, termasuk deskripsi isian dan inisiatif.", allowedRoles: ["kepala_sekolah", "wali_kelas"], exportFormats: ["csv", "pdf"] },
 ];
 
 const HABITS = [
@@ -21,24 +19,30 @@ const HABITS = [
 ];
 
 const MOCK_ROWS: (ReportRow & { academicYearId: string; classId: string })[] = [
-  { id: "stu-001", studentName: "Ahmad Rizky", nis: "10001", className: "5A • Cendekia", method: "DIGITAL", activityPercent: 92, points: 1450, exp: 820, level: 6, streak: 12, badges: 4, awards: 2, completedDays: 6, academicYearId: "ay-2026", classId: "cls-5a" },
-  { id: "stu-002", studentName: "Alya Putri", nis: "10002", className: "5A • Cendekia", method: "DIGITAL", activityPercent: 84, points: 1280, exp: 740, level: 5, streak: 8, badges: 3, awards: 1, completedDays: 5, academicYearId: "ay-2026", classId: "cls-5a" },
-  { id: "stu-003", studentName: "Bima Pratama", nis: "10003", className: "5A • Cendekia", method: "MANUAL", activityPercent: null, points: null, exp: null, level: null, streak: null, badges: 0, awards: 0, completedDays: null, academicYearId: "ay-2026", classId: "cls-5a" },
-  { id: "stu-004", studentName: "Citra Lestari", nis: "10004", className: "8B • Inspiratif", method: "DIGITAL", activityPercent: 76, points: 1040, exp: 610, level: 4, streak: 5, badges: 2, awards: 1, completedDays: 4, academicYearId: "ay-2026", classId: "cls-8b" },
+  { id: "stu-001", studentName: "Ahmad Rizky", nis: "10001", className: "5A • Cendekia", method: "DIGITAL", activityPercent: 92, points: 1450, exp: 820, level: 6, streak: 12, badges: 4, awards: 2, completedDays: 6, academicYearId: "ay-2026", classId: "cls-5a", initiative: "Sadar sendiri" },
+  { id: "stu-002", studentName: "Alya Putri", nis: "10002", className: "5A • Cendekia", method: "DIGITAL", activityPercent: 84, points: 1280, exp: 740, level: 5, streak: 8, badges: 3, awards: 1, completedDays: 5, academicYearId: "ay-2026", classId: "cls-5a", initiative: "Disuruh" },
+  { id: "stu-003", studentName: "Bima Pratama", nis: "10003", className: "5A • Cendekia", method: "MANUAL", activityPercent: null, points: null, exp: null, level: null, streak: null, badges: 0, awards: 0, completedDays: null, academicYearId: "ay-2026", classId: "cls-5a", initiative: null },
+  { id: "stu-004", studentName: "Citra Lestari", nis: "10004", className: "8B • Inspiratif", method: "DIGITAL", activityPercent: 76, points: 1040, exp: 610, level: 4, streak: 5, badges: 2, awards: 1, completedDays: 4, academicYearId: "ay-2026", classId: "cls-8b", initiative: "Sadar sendiri" },
 ];
 
-const pct = (base: number | null, offset: number) => (base == null ? null : Math.max(0, Math.min(100, base + offset)));
-const habitOffset: Record<string, number> = { "habit-1": 2, "habit-2": -4, "habit-3": 5, "habit-4": -1, "habit-5": -7, "habit-6": 3, "habit-7": 0 };
+const HABIT_DESCRIPTIONS: Record<string, string> = {
+  "habit-1": "Bangun pukul 05.00",
+  "habit-2": "Menjalankan ibadah wajib sesuai kebiasaan sekolah",
+  "habit-3": "Berolahraga 30 menit",
+  "habit-4": "Sarapan cukup sebelum beraktivitas",
+  "habit-5": "Belajar selama 45 menit",
+  "habit-6": "Membantu orang tua merapikan rumah",
+  "habit-7": "Tidur pukul 20.30",
+};
 
 function getAllowedDefinitions(user: UserProfile) {
-  if (user.role === "super_admin" || user.role === "siswa") return [];
   return REPORTS.filter((report) => report.allowedRoles.includes(user.role));
 }
 
 function applyScope(user: UserProfile, filter: ReportFilter) {
   let rows = [...MOCK_ROWS];
   if (user.role === "wali_kelas") rows = rows.filter((row) => row.classId === user.classId);
-  if (filter.classId) rows = rows.filter((row) => row.classId === filter.classId);
+  if (user.role === "kepala_sekolah" && filter.classId) rows = rows.filter((row) => row.classId === filter.classId);
   if (filter.studentId) rows = rows.filter((row) => row.id === filter.studentId);
   if (filter.search?.trim()) {
     const search = filter.search.trim().toLowerCase();
@@ -49,54 +53,33 @@ function applyScope(user: UserProfile, filter: ReportFilter) {
 
 function makeColumns(scope: ReportScope): ReportColumn[] {
   if (scope === "achievement") return [
-    { key: "studentName", label: "Nama" },
-    { key: "className", label: "Kelas / Rombel" },
-    { key: "badges", label: "Badge" },
-    { key: "awards", label: "Penghargaan" },
-    { key: "certificateCount", label: "Sertifikat" },
+    { key: "studentName", label: "Nama" }, { key: "className", label: "Kelas / Rombel" }, { key: "badges", label: "Badge" }, { key: "awards", label: "Penghargaan" }, { key: "certificateCount", label: "Sertifikat" },
   ];
   if (scope === "habit") return [
-    { key: "studentName", label: "Nama" },
-    { key: "className", label: "Kelas / Rombel" },
-    { key: "method", label: "Metode" },
-    { key: "habitPercent", label: "Aktivitas Kebiasaan %" },
-    { key: "habitPoints", label: "Poin" },
-    { key: "habitExp", label: "EXP" },
-  ];
-  if (scope === "initiative") return [
-    { key: "studentName", label: "Nama" },
-    { key: "className", label: "Kelas / Rombel" },
-    { key: "selfInitiativeCount", label: "Sadar sendiri" },
-    { key: "promptedInitiativeCount", label: "Disuruh" },
+    { key: "studentName", label: "Nama" }, { key: "className", label: "Kelas / Rombel" }, { key: "method", label: "Metode" }, { key: "habitPercent", label: "Aktivitas Kebiasaan %" }, { key: "habitDescription", label: "Deskripsi Isian" }, { key: "initiative", label: "Inisiatif" }, { key: "habitPoints", label: "Poin" }, { key: "habitExp", label: "EXP" },
   ];
   return [
-    { key: "studentName", label: "Nama" },
-    { key: "nis", label: "NIS" },
-    { key: "className", label: "Kelas / Rombel" },
-    { key: "method", label: "Metode" },
-    { key: "activityPercent", label: "Aktivitas %" },
-    { key: "points", label: "Poin" },
-    { key: "exp", label: "EXP" },
-    { key: "level", label: "Level" },
+    { key: "studentName", label: "Nama" }, { key: "nis", label: "NIS" }, { key: "className", label: "Kelas / Rombel" }, { key: "method", label: "Metode" }, { key: "activityPercent", label: "Aktivitas %" }, { key: "points", label: "Poin" }, { key: "exp", label: "EXP" }, { key: "level", label: "Level" },
   ];
 }
 
 function makeRows(scope: ReportScope, filter: ReportFilter, rows: ReturnType<typeof applyScope>): ReportRow[] {
-  if (scope === "habit") {
-    const offset = habitOffset[filter.habitId ?? "habit-1"] ?? 0;
-    return rows.map((row) => ({ ...row, habitPercent: pct(row.activityPercent, offset), habitPoints: row.points == null ? null : Math.round(row.points * (Math.max(25, 75 + offset) / 100)), habitExp: row.exp == null ? null : Math.round(row.exp * (Math.max(25, 72 + offset) / 100)) }));
-  }
-  if (scope === "initiative") {
-    return rows.map((row) => {
-      const total = row.completedDays ?? 0;
-      const selfCount = row.method === "MANUAL" ? null : Math.max(0, Math.round(total * 0.65));
-      const promptedCount = row.method === "MANUAL" ? null : Math.max(0, total - (selfCount ?? 0));
-      if (filter.initiative === "Sadar sendiri") return { ...row, selfInitiativeCount: selfCount, promptedInitiativeCount: 0 };
-      if (filter.initiative === "Disuruh") return { ...row, selfInitiativeCount: 0, promptedInitiativeCount: promptedCount };
-      return { ...row, selfInitiativeCount: selfCount, promptedInitiativeCount: promptedCount };
-    });
-  }
-  return rows;
+  if (scope !== "habit") return rows;
+  const selections = filter.initiatives?.length ? filter.initiatives : (["Sadar sendiri", "Disuruh"] as InitiativeReportValue[]);
+  return rows
+    .map((row) => {
+      const isFilled = row.method === "DIGITAL" && (row.completedDays ?? 0) > 0;
+      const initiative = row.initiative ?? null;
+      return {
+        ...row,
+        habitPercent: row.method === "MANUAL" ? null : (isFilled ? 100 : 0),
+        habitPoints: row.method === "MANUAL" ? null : (isFilled ? Math.max(0, Math.round((row.points ?? 0) / Math.max(row.completedDays ?? 1, 1))) : 0),
+        habitExp: row.method === "MANUAL" ? null : (isFilled ? Math.max(0, Math.round((row.exp ?? 0) / Math.max(row.completedDays ?? 1, 1))) : 0),
+        habitDescription: isFilled ? HABIT_DESCRIPTIONS[filter.habitId ?? "habit-1"] : "Belum mengisi",
+        initiative,
+      };
+    })
+    .filter((row) => row.method === "MANUAL" || !row.initiative || selections.includes(row.initiative));
 }
 
 export const reportService = {
@@ -121,36 +104,23 @@ export const reportService = {
     if (user.role !== "kepala_sekolah" && user.role !== "wali_kelas") throw new Error("Report Center tidak tersedia untuk role ini.");
     if (!user.permissions.includes("read:reports") && !user.permissions.includes("*")) throw new Error("Anda tidak memiliki izin mengakses laporan.");
     if (filter.startDate > filter.endDate) throw new Error("Tanggal mulai tidak boleh melewati tanggal akhir.");
-    if (user.role === "wali_kelas" && filter.scope === "class") throw new Error("Wali Kelas tidak memiliki filter laporan per rombel / kelas.");
+    if (user.role === "wali_kelas" && filter.classId) throw new Error("Wali Kelas tidak memiliki filter rombel / kelas.");
     const definition = getAllowedDefinitions(user).find((item) => item.id === filter.scope);
     if (!definition) throw new Error("Anda tidak memiliki akses ke jenis laporan ini.");
     if (filter.scope === "habit" && !HABITS.some((habit) => habit.id === filter.habitId)) throw new Error("Kebiasaan belum dipilih.");
-
+    if (filter.scope === "class" && user.role !== "kepala_sekolah") throw new Error("Wali Kelas tidak memiliki jenis laporan per rombel / kelas.");
     const baseRows = applyScope(user, filter);
     const rows = makeRows(filter.scope, filter, baseRows);
     const achievementRows = baseRows.map((row) => ({ id: row.id, studentName: row.studentName, className: row.className, badgeCount: row.badges, awardCount: row.awards, certificateCount: row.awards, latestAward: row.awards > 0 ? "Kebiasaan Mandiri" : null }));
     const selectedHabit = HABITS.find((habit) => habit.id === filter.habitId)?.name;
-    const initiativeLabel = filter.initiative === "ALL" || !filter.initiative ? "Semua inisiatif" : filter.initiative;
-    const title = filter.scope === "habit" ? `Laporan ${selectedHabit ?? "Kebiasaan"}` : filter.scope === "initiative" ? `Laporan Inisiatif — ${initiativeLabel}` : definition.title;
-    const subtitle = filter.scope === "habit" ? `Rekap khusus ${selectedHabit ?? "kebiasaan"}.` : filter.scope === "initiative" ? "Perbandingan aktivitas yang dilakukan sadar sendiri dan setelah diingatkan/diperintah." : definition.description;
-
+    const selectedInitiatives = filter.initiatives?.length ? filter.initiatives.join(" + ") : "Semua inisiatif";
     return {
-      generatedAt: new Date().toISOString(),
-      scope: filter.scope,
-      period: { startDate: filter.startDate, endDate: filter.endDate },
-      title,
-      subtitle,
-      columns: makeColumns(filter.scope),
-      rows,
-      achievementRows,
-      totals: {
-        students: baseRows.length,
-        digital: baseRows.filter((row) => row.method === "DIGITAL").length,
-        manual: baseRows.filter((row) => row.method === "MANUAL").length,
-        activeDays: baseRows.reduce((sum, row) => sum + (row.completedDays ?? 0), 0),
-      },
-      exportAllowed: true,
-      exportFormats: definition.exportFormats,
+      generatedAt: new Date().toISOString(), scope: filter.scope, period: { startDate: filter.startDate, endDate: filter.endDate },
+      title: filter.scope === "habit" ? `Laporan ${selectedHabit ?? "Kebiasaan"}` : definition.title,
+      subtitle: filter.scope === "habit" ? `Rekap ${selectedHabit ?? "kebiasaan"} · Inisiatif: ${selectedInitiatives}.` : definition.description,
+      columns: makeColumns(filter.scope), rows, achievementRows,
+      totals: { students: baseRows.length, digital: baseRows.filter((row) => row.method === "DIGITAL").length, manual: baseRows.filter((row) => row.method === "MANUAL").length, activeDays: baseRows.reduce((sum, row) => sum + (row.completedDays ?? 0), 0) },
+      exportAllowed: true, exportFormats: definition.exportFormats,
     };
   },
 
@@ -163,8 +133,6 @@ export const reportService = {
       const lines = result.rows.map((row) => result.columns.map((column) => JSON.stringify((row as Record<string, unknown>)[column.key] ?? "")).join(","));
       return new Blob([[headers, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
     }
-    return new Blob([
-      `${result.title}\nPeriode: ${result.period.startDate} s/d ${result.period.endDate}\nJumlah siswa: ${result.totals.students}\nPDF final akan diproduksi backend.`,
-    ], { type: "application/pdf" });
+    return new Blob([`${result.title}\nPeriode: ${result.period.startDate} s/d ${result.period.endDate}\nJumlah siswa: ${result.totals.students}\nPDF final akan diproduksi backend.`], { type: "application/pdf" });
   },
 };
