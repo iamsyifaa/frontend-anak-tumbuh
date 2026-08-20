@@ -212,7 +212,7 @@ export const SuperAdminDashboardShell: React.FC = () => {
             </button>
             <div className="hidden sm:block">
               <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#203A5B]">
-                ANAKTUMBUH.ID
+                anaktumbuh.id
               </p>
               <p className="text-sm font-extrabold text-slate-800">
                 Super Admin

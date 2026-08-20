@@ -45,7 +45,7 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <h1 className="mt-4 text-2xl font-black tracking-tight text-[#232852] sm:text-3xl">
-            ANAKTUMBUH.ID
+            anaktumbuh.id
           </h1>
           <p className="mt-1 text-sm font-semibold text-[#232852]/65 sm:text-base">
             Akses Siswa

@@ -17,7 +17,7 @@ export const DashboardShell: React.FC = () => {
       <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between p-4 hidden md:flex">
         <div>
           <div className="px-2 py-4">
-            <h2 className="text-xl font-bold text-emerald-400">ANAKTUMBUH</h2>
+            <h2 className="text-xl font-bold text-emerald-400">anaktumbuh</h2>
             <span className="text-xs text-slate-400 uppercase tracking-widest font-semibold">
               {user?.role.replace("_", " ")}
             </span>

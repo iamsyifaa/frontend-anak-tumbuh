@@ -72,7 +72,7 @@ export const AdminLoginPage: React.FC = () => {
           </div>
 
           <h1 className="mt-4 text-2xl font-black tracking-tight text-[#232852] sm:text-3xl">
-            ANAKTUMBUH.ID
+            anaktumbuh.id
           </h1>
           <p className="mt-1 text-sm font-bold text-[#232852]/75 sm:text-base">
             Login Administrasi
