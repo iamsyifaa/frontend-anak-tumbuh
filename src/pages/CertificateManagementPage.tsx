@@ -21,6 +21,7 @@ export const CertificateManagementPage: React.FC = () => {
   const [basis, setBasis] = useState<"award" | "habit" | "period">("habit");
   const [habitName, setHabitName] = useState("Bangun Pagi");
   const [periodLabel, setPeriodLabel] = useState("Agustus 2026");
+  const [descriptionOverride, setDescriptionOverride] = useState("Diberikan kepada {student} atas pencapaian kebiasaan {habit} pada periode {period}.");
   const [awardTitle, setAwardTitle] = useState("");
   const [creatingTemplate, setCreatingTemplate] = useState(false);
   const [savingTemplateSelection, setSavingTemplateSelection] = useState(false);
@@ -77,6 +78,7 @@ export const CertificateManagementPage: React.FC = () => {
         descriptionTemplate: "Diberikan kepada {student} atas pencapaian kebiasaan {habit} pada periode {period}.",
         issuerRoleLabel: "Kepala Sekolah",
         active: true,
+        templateCode: "classic-blue-gold",
       });
       setTemplateName("");
       setSelectedTemplateId(template.id);
@@ -103,6 +105,7 @@ export const CertificateManagementPage: React.FC = () => {
         periodLabel,
         waliTeacherId: selectedWaliId,
         awardTitle: basis === "award" ? awardTitle : undefined,
+        descriptionOverride,
       });
       setSelectedStudents([]);
       setNotice(`${created.length} sertifikat berhasil dibuat dan diberikan.`);
@@ -129,7 +132,7 @@ export const CertificateManagementPage: React.FC = () => {
 
     <section className="grid gap-6 xl:grid-cols-[.9fr_1.1fr]">
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between gap-3"><div><h2 className="font-black text-slate-900">Template sertifikat</h2><p className="mt-1 text-xs text-slate-500">Template dikelola sebagai konfigurasi versioned.</p></div><FilePlus2 className="h-5 w-5 text-violet-500" /></div>
+        <div className="flex items-center justify-between gap-3"><div><h2 className="font-black text-slate-900">Template sertifikat</h2><p className="mt-1 text-xs text-slate-500">Template dibuat dari kode layout ANAKTUMBUH yang versioned, tanpa upload foto.</p></div><FilePlus2 className="h-5 w-5 text-violet-500" /></div>
         <div className="mt-4 space-y-3">
           <label className="block text-xs font-black text-slate-600">Template aktif<select className={inputClass} value={selectedTemplateId} onChange={(e) => setSelectedTemplateId(e.target.value)}>{(context?.templates ?? []).map((template) => <option key={template.id} value={template.id}>{template.name} · v{template.version}</option>)}</select></label>
           <button type="button" disabled={savingTemplateSelection || !selectedTemplateId} onClick={async () => { if (!user || !schoolId) return; setSavingTemplateSelection(true); setError(""); try { await certificateService.saveSelectedTemplate(user, schoolId, selectedTemplateId); setNotice("Template aktif berhasil disimpan."); await load(); } catch (err) { setError(err instanceof Error ? err.message : "Gagal menyimpan template aktif."); } finally { setSavingTemplateSelection(false); } }} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-xs font-black text-violet-700 disabled:opacity-50">{savingTemplateSelection ? "Menyimpan..." : "Simpan Template Aktif"}</button>
@@ -146,6 +149,8 @@ export const CertificateManagementPage: React.FC = () => {
           {basis === "habit" && <label className="text-xs font-black text-slate-600">Kebiasaan<select className={inputClass} value={habitName} onChange={(e) => setHabitName(e.target.value)}>{habits.map((habit) => <option key={habit.id} value={habit.name}>{habit.name}</option>)}</select></label>}
           {basis === "award" && <label className="text-xs font-black text-slate-600">Nama penghargaan<input className={inputClass} value={awardTitle} onChange={(e) => setAwardTitle(e.target.value)} placeholder="Contoh: Kebiasaan Mandiri" /></label>}
         </div>
+
+        <label className="mt-4 block text-xs font-black text-slate-600">Deskripsi sertifikat<textarea rows={3} className={inputClass} value={descriptionOverride} onChange={(e) => setDescriptionOverride(e.target.value)} placeholder="Contoh: Diberikan kepada {student} atas pencapaian kebiasaan {habit} pada periode {period}." /></label>
 
         <label className="mt-4 block text-xs font-black text-slate-600">Wali Kelas penerima<select className={inputClass} value={selectedWaliId} onChange={(e) => { setSelectedWaliId(e.target.value); setSelectedStudents([]); }}><option value="">Pilih Wali Kelas</option>{(context?.waliTeachers ?? []).map((teacher) => <option key={teacher.id} value={teacher.id}>{teacher.name} · {teacher.classGroupName ?? "Belum ditetapkan"}</option>)}</select></label>
 

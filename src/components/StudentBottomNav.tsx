@@ -1,5 +1,6 @@
 import React from "react";
-import { Home, CheckSquare, Trophy, Medal } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Home, CheckSquare, Trophy, Medal, UserRound } from "lucide-react";
 import { TabType } from "../types";
 
 interface StudentBottomNavProps {
@@ -13,40 +14,49 @@ export const StudentBottomNav: React.FC<StudentBottomNavProps> = ({
   setActiveTab,
   rankingEnabled = false,
 }) => {
+  const navigate = useNavigate();
+
   const items = [
     { id: "beranda" as TabType, label: "Beranda", icon: Home },
-    { id: "kebiasaan" as TabType, label: "Laporan Harian", icon: CheckSquare },
+    { id: "kebiasaan" as TabType, label: "Laporan", icon: CheckSquare },
     { id: "pencapaian" as TabType, label: "Pencapaian", icon: Trophy },
     ...(rankingEnabled ? [{ id: "ranking" as TabType, label: "Papan Juara", icon: Medal }] : []),
+    { id: "profile" as const, label: "Profil", icon: UserRound },
   ];
 
   return (
     <nav
       aria-label="Navigasi siswa"
-      className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl border-t border-slate-100 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+      className="fixed bottom-6 left-1/2 z-50 flex w-[calc(100%-2rem)] -translate-x-1/2 items-center rounded-full border border-[#A4C1FD]/40 bg-white px-2 py-2 shadow-[0_10px_40px_rgba(0,0,0,0.1)] md:hidden"
     >
-      <div className="mx-auto flex w-full max-w-md items-stretch justify-around gap-1">
+      <div className="flex w-full items-center justify-around gap-1">
         {items.map(({ id, label, icon: Icon }) => {
-          const active = activeTab === id;
+          const isProfile = id === "profile";
+          const active = isProfile ? false : activeTab === id;
           return (
             <button
               key={id}
               type="button"
-              onClick={() => setActiveTab(id)}
+              onClick={() => {
+                if (isProfile) {
+                  navigate("/dashboard/siswa/profile");
+                  return;
+                }
+                setActiveTab(id as TabType);
+              }}
               aria-current={active ? "page" : undefined}
-              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[10px] font-extrabold transition-colors ${
-                active ? "text-sky-500" : "text-slate-400"
+              className={`group flex min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[9px] font-black transition-all ${
+                active ? "text-[#3A72E3]" : "text-slate-400"
               }`}
             >
               <span
-                className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all ${
-                  active ? "bg-sky-50 text-sky-500" : "text-slate-400"
+                className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
+                  active ? "-translate-y-2 bg-[#A4C1FD]/30" : "bg-transparent"
                 }`}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className={`h-5 w-5 ${active ? "text-[#3A72E3]" : "text-slate-400"}`} />
               </span>
-              <span className="max-w-full truncate">{label}</span>
-              {active && <span className="absolute bottom-0 h-1 w-8 rounded-full bg-sky-500" />}
+              <span className={active ? "-mt-2" : ""}>{label}</span>
             </button>
           );
         })}

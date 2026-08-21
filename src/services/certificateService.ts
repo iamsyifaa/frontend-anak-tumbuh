@@ -34,6 +34,7 @@ let templates: CertificateTemplate[] = [
     active: true,
     version: 1,
     updatedAt: now(),
+    templateCode: "classic-blue-gold",
   },
 ];
 
@@ -224,7 +225,7 @@ export const certificateService = {
         .replaceAll("{student}", student.name)
         .replaceAll("{habit}", habitName)
         .replaceAll("{period}", request.periodLabel);
-      const description = template.descriptionTemplate
+      const description = (request.descriptionOverride?.trim() || template.descriptionTemplate)
         .replaceAll("{student}", student.name)
         .replaceAll("{habit}", habitName)
         .replaceAll("{period}", request.periodLabel);

@@ -5,6 +5,7 @@ export interface StudentLevelHistoryItem {
   level: number;
   levelLabel: string;
   periodLabel: string;
+  isActive?: boolean;
 }
 
 export interface StudentProfileData {
@@ -14,5 +15,9 @@ export interface StudentProfileData {
   schoolName: string;
   currentLevel: number;
   currentLevelLabel: string;
+  totalPoints: number;
+  totalExp: number;
+  badgeCount: number;
+  awardCount: number;
   levelHistory: StudentLevelHistoryItem[];
 }

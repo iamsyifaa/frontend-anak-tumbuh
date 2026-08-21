@@ -218,9 +218,7 @@ export const ReportCenterPage: React.FC<ReportCenterPageProps> = ({
                       ? "Rombel / Kelas"
                       : scope === "achievement"
                         ? "Pencapaian"
-                        : scope === "habit"
-                          ? "Per Kebiasaan"
-                          : "Per Inisiatif"}
+                        : "Per Kebiasaan"}
                 </option>
               ))}
             </select>

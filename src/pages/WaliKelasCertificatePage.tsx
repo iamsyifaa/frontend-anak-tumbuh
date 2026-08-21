@@ -20,7 +20,23 @@ const escapeXml = (value: string) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
 const buildSvg = (certificate: IssuedCertificate) =>
-  `<svg xmlns="http://www.w3.org/2000/svg" width="1123" height="794" viewBox="0 0 1123 794"><rect width="1123" height="794" fill="#f8fbff"/><rect x="26" y="26" width="1071" height="742" rx="18" fill="white" stroke="#d5a62a" stroke-width="6"/><rect x="44" y="44" width="1035" height="706" rx="12" fill="none" stroke="#203a5b" stroke-width="3"/><text x="561" y="130" text-anchor="middle" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#203a5b">anaktumbuh.id</text><text x="561" y="205" text-anchor="middle" font-family="Georgia,serif" font-size="52" font-weight="700" fill="#173b67">SERTIFIKAT PENGHARGAAN</text><text x="561" y="255" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#6b7280">Diberikan kepada</text><text x="561" y="335" text-anchor="middle" font-family="Georgia,serif" font-size="46" font-weight="700" fill="#111827">${escapeXml(certificate.studentName)}</text><line x1="300" y1="355" x2="822" y2="355" stroke="#d5a62a" stroke-width="3"/><text x="561" y="410" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" fill="#374151">${escapeXml(certificate.description)}</text><text x="561" y="455" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#6b7280">Periode ${escapeXml(certificate.periodLabel)}</text><text x="290" y="610" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#111827">Kepala Sekolah</text><text x="833" y="610" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#111827">Wali Kelas</text><line x1="180" y1="575" x2="400" y2="575" stroke="#6b7280"/><line x1="723" y1="575" x2="943" y2="575" stroke="#6b7280"/><text x="561" y="685" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#9ca3af">Nomor ${escapeXml(certificate.certificateNumber)}</text></svg>`;
+  `<svg xmlns="http://www.w3.org/2000/svg" width="1123" height="794" viewBox="0 0 1123 794">
+    <rect width="1123" height="794" fill="#f8fbff"/>
+    <rect x="26" y="26" width="1071" height="742" rx="18" fill="white" stroke="#d5a62a" stroke-width="6"/>
+    <rect x="44" y="44" width="1035" height="706" rx="12" fill="none" stroke="#203a5b" stroke-width="3"/>
+    <text x="561" y="130" text-anchor="middle" font-family="Georgia,serif" font-size="28" font-weight="700" fill="#203a5b">ANAKTUMBUH.ID</text>
+    <text x="561" y="205" text-anchor="middle" font-family="Georgia,serif" font-size="52" font-weight="700" fill="#173b67">SERTIFIKAT PENGHARGAAN</text>
+    <text x="561" y="255" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#6b7280">Diberikan kepada</text>
+    <text x="561" y="335" text-anchor="middle" font-family="Georgia,serif" font-size="46" font-weight="700" fill="#111827">${escapeXml(certificate.studentName)}</text>
+    <line x1="300" y1="355" x2="822" y2="355" stroke="#d5a62a" stroke-width="3"/>
+    <text x="561" y="410" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" fill="#374151">${escapeXml(certificate.description)}</text>
+    <text x="561" y="455" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#6b7280">Periode ${escapeXml(certificate.periodLabel)}</text>
+    <line x1="180" y1="575" x2="400" y2="575" stroke="#6b7280"/>
+    <line x1="723" y1="575" x2="943" y2="575" stroke="#6b7280"/>
+    <text x="290" y="610" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#111827">Kepala Sekolah</text>
+    <text x="833" y="610" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#111827">Wali Kelas</text>
+    <text x="561" y="685" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#9ca3af">Nomor ${escapeXml(certificate.certificateNumber)}</text>
+  </svg>`;
 
 export const WaliKelasCertificatePage: React.FC = () => {
   const { user } = useAuth();

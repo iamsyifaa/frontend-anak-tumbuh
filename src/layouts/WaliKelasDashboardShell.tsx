@@ -79,8 +79,10 @@ export const WaliKelasDashboardShell: React.FC = () => {
               <ShieldCheck className="h-5 w-5" />
             </span>
             {!collapsed && (
-              <span className="text-lg font-black tracking-tight text-white">
-                anaktumbuh.id
+              <span className="text-lg font-black tracking-tight">
+                <span className="text-white">anak</span>
+                <span className="text-[#D7EFFF]">tumbuh</span>
+                <span className="text-amber-400">.id</span>
               </span>
             )}
           </button>

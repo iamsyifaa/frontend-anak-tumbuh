@@ -11,6 +11,7 @@ export interface CertificateTemplate {
   active: boolean;
   version: number;
   updatedAt: string;
+  templateCode?: "classic-blue-gold";
 }
 
 export interface CertificateIssueRequest {
@@ -21,6 +22,7 @@ export interface CertificateIssueRequest {
   habitName?: string;
   periodLabel: string;
   awardTitle?: string;
+  descriptionOverride?: string;
   waliTeacherId: string;
 }
 

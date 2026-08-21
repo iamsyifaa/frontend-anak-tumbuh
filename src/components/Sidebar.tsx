@@ -33,14 +33,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {isMobileOpen && <button type="button" aria-label="Tutup menu" onClick={() => setIsMobileOpen?.(false)} className="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-[2px] md:hidden" />}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col justify-between bg-[#0b1b3a] text-white md:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col justify-between bg-[#232852] text-white md:flex">
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 flex items-center gap-2">
-            <h1 className="font-extrabold text-2xl tracking-tight font-heading"><span className="text-white">anak</span><span className="text-sky-400">tumbuh</span><span className="text-amber-400">.id</span></h1>
+            <h1 className="font-extrabold text-2xl tracking-tight font-heading"><span className="text-white">anak</span><span className="text-[#A4C1FD]">tumbuh</span><span className="text-[#EEB541]">.id</span></h1>
           </div>
 
-          <div className="mx-6 mb-6 px-4 py-3 bg-white/5 rounded-2xl flex items-center gap-2 text-xs font-bold text-sky-200 border border-white/10 shadow-sm">
-            <Flame className={`w-4 h-4 flex-shrink-0 ${remainingChances > 0 ? "text-amber-400" : "text-slate-500"}`} />
+          <div className="mx-6 mb-6 px-4 py-3 bg-white/5 rounded-2xl flex items-center gap-2 text-xs font-bold text-[#A4C1FD] border border-white/10 shadow-sm">
+            <Flame className={`w-4 h-4 flex-shrink-0 ${remainingChances > 0 ? "text-[#EEB541]" : "text-slate-500"}`} />
             <span>{currentStreak} hari beruntun • {currentPoints} poin</span>
           </div>
 
@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
-                return <button key={item.id} onClick={() => { setActiveTab(item.id); setIsMobileOpen?.(false); }} className={`group w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 ${isActive ? "bg-sky-500 text-white shadow-md shadow-sky-500/20" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}>
+                return <button key={item.id} onClick={() => { setActiveTab(item.id); setIsMobileOpen?.(false); }} className={`group w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 ${isActive ? "bg-[#3A72E3] text-white shadow-md shadow-[#3A72E3]/20" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}>
                   <div className={`transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}><Icon className="w-5 h-5 flex-shrink-0" /></div>
                   <span className={`transition-transform duration-300 ${isActive ? "" : "group-hover:translate-x-1"}`}>{item.label}</span>
                 </button>;
